@@ -2,7 +2,7 @@ import { Schema, SchemaObject } from '@caviajs/validator';
 
 declare module '@caviajs/http-router' {
   export interface RouteMetadata {
-    name: string;
+    name?: string;
     schema?: {
       readonly request?: {
         readonly body?: Schema;
