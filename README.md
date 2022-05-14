@@ -8,7 +8,27 @@
 </div>
 
 ```shell
-npm install @caviajs/http-contract --save
+npm install @caviajs/http-contract @caviajs/http-client @caviajs/http-router @caviajs/validator --save
+```
+
+<div align="center">
+<h4>Setup</h4>
+</div>
+
+```typescript
+import { HttpContract } from '@caviajs/http-contract';
+
+// ...
+HttpContract.setup('/_meta/contract', httpRouter);
+// ...
+```
+
+<div align="center">
+<h4>Generate contract</h4>
+</div>
+
+```shell
+generate-contract --url http://localhost:3000/_meta/contract --output src/contracts/foo
 ```
 
 <div align="center">

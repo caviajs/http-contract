@@ -7,7 +7,7 @@ import { cyan } from 'colorette';
 import { noCase } from 'no-case';
 import { hideBin } from 'yargs/helpers';
 import { HttpClient, HttpResponse } from '@caviajs/http-client';
-import { ApiSpec } from '@caviajs/http-server';
+import { ApiSpec } from '@caviajs/http-router';
 import { getSchemaNullable, getSchemaRequired, getSchemaStrict, Schema } from '@caviajs/validator';
 
 function camelCase(str: string): string {
@@ -46,112 +46,116 @@ function composeHttpClientTemplate(name: string, apiSpec: ApiSpec): string {
   content += `\tpublic static connectionUrl: string = '';\n`;
 
   for (const route of apiSpec.routes) {
-    content += `\n`;
-    content += `\tpublic static async ${ camelCase(route.name) }(\n`;
-
-    if (route.schema?.request?.body) {
-      content += `\t\tbody: ${ pascalCase(route.name) }Body,\n`;
-    }
-
-    if (route.schema?.request?.headers) {
-      content += `\t\theaders: ${ pascalCase(route.name) }Headers,\n`;
-    }
-
-    if (route.schema?.request?.params) {
-      content += `\t\tparams: ${ pascalCase(route.name) }Params,\n`;
-    }
-
-    if (route.schema?.request?.query) {
-      content += `\t\tquery: ${ pascalCase(route.name) }Query,\n`;
-    }
-
-    content += `\t): Promise<${ pascalCase(route.name) }Response> {\n`;
-    content += `\t\tconst url: URL = new URL('${ route.path }', this.connectionUrl);\n`;
-    content += `\n`;
-
-    if (route.schema?.request?.params) {
-      content += `\t\tObject.entries(params || {}).forEach(([key, value]) => {\n`;
-      content += '\t\t\turl.pathname = url.pathname.replace(`:${ key }`, value);\n';
-      content += `\t\t});\n`;
+    if (route.metadata?.name) {
       content += `\n`;
-    }
+      content += `\tpublic static async ${ camelCase(route.metadata?.name) }(\n`;
 
-    if (route.schema?.request?.query) {
-      content += '\t\tObject.entries(query || {}).forEach(([key, value]) => {\n';
-      content += '\t\t\turl.searchParams.set(key, value);\n';
-      content += '\t\t});\n';
+      if (route.metadata?.schema?.request?.body) {
+        content += `\t\tbody: ${ pascalCase(route.metadata?.name) }Body,\n`;
+      }
+
+      if (route.metadata?.schema?.request?.headers) {
+        content += `\t\theaders: ${ pascalCase(route.metadata?.name) }Headers,\n`;
+      }
+
+      if (route.metadata?.schema?.request?.params) {
+        content += `\t\tparams: ${ pascalCase(route.metadata?.name) }Params,\n`;
+      }
+
+      if (route.metadata?.schema?.request?.query) {
+        content += `\t\tquery: ${ pascalCase(route.metadata?.name) }Query,\n`;
+      }
+
+      content += `\t): Promise<${ pascalCase(route.metadata?.name) }Response> {\n`;
+      content += `\t\tconst url: URL = new URL('${ route.path }', this.connectionUrl);\n`;
       content += `\n`;
+
+      if (route.metadata?.schema?.request?.params) {
+        content += `\t\tObject.entries(params || {}).forEach(([key, value]) => {\n`;
+        content += '\t\t\turl.pathname = url.pathname.replace(`:${ key }`, value);\n';
+        content += `\t\t});\n`;
+        content += `\n`;
+      }
+
+      if (route.metadata?.schema?.request?.query) {
+        content += '\t\tObject.entries(query || {}).forEach(([key, value]) => {\n';
+        content += '\t\t\turl.searchParams.set(key, value);\n';
+        content += '\t\t});\n';
+        content += `\n`;
+      }
+
+      content += '\t\treturn await HttpClient.request({\n';
+
+      if (route.metadata?.schema?.request?.body) {
+        content += '\t\t\tbody: body,\n';
+      }
+
+      if (route.metadata?.schema?.request?.headers) {
+        content += '\t\t\theaders: headers,\n';
+      }
+
+      content += `\t\t\tmethod: '${ route.method }',\n`;
+      content += `\t\t\tresponseType: 'buffer',\n`;
+      content += `\t\t\t// timeout: undefined,\n`;
+      content += `\t\t\turl: url.toString(),\n`;
+
+      content += `\t\t}) as ${ pascalCase(route.metadata?.name) }Response;\n`;
+
+      content += `\t}\n`;
     }
-
-    content += '\t\treturn await HttpClient.request({\n';
-
-    if (route.schema?.request?.body) {
-      content += '\t\t\tbody: body,\n';
-    }
-
-    if (route.schema?.request?.headers) {
-      content += '\t\t\theaders: headers,\n';
-    }
-
-    content += `\t\t\tmethod: '${ route.method }',\n`;
-    content += `\t\t\tresponseType: 'buffer',\n`;
-    content += `\t\t\t// timeout: undefined,\n`;
-    content += `\t\t\turl: url.toString(),\n`;
-
-    content += `\t\t}) as ${ pascalCase(route.name) }Response;\n`;
-
-    content += `\t}\n`;
   }
 
   content += `}\n`;
 
   for (const route of apiSpec.routes) {
-    content += `\n`;
-
-    if (route.schema?.request?.body) {
-      content += generateTypeBySchema(`${ pascalCase(route.name) }Body`, route.schema?.request?.body);
+    if (route.metadata?.name) {
       content += `\n`;
-    }
 
-    if (route.schema?.request?.headers) {
-      content += generateTypeBySchema(`${ pascalCase(route.name) }Headers`, route.schema?.request?.headers);
-      content += `\n`;
-    }
-
-    if (route.schema?.request?.params) {
-      content += generateTypeBySchema(`${ pascalCase(route.name) }Params`, route.schema?.request?.params);
-      content += `\n`;
-    }
-
-    if (route.schema?.request?.query) {
-      content += generateTypeBySchema(`${ pascalCase(route.name) }Query`, route.schema?.request?.query);
-      content += `\n`;
-    }
-
-    if (route.schema?.responses) {
-      content += `export type ${ pascalCase(route.name) }Response =\n`;
-
-      Object.entries(route.schema?.responses || {}).forEach(([status, response], index, array) => {
-        content += `\t| ${ pascalCase(route.name) }Response${ status }${ index === array.length - 1 ? ';' : '' }\n`;
-      });
-
-      for (const [status, response] of Object.entries(route.schema?.responses || {})) {
+      if (route.metadata?.schema?.request?.body) {
+        content += generateTypeBySchema(`${ pascalCase(route.metadata?.name) }Body`, route.metadata?.schema?.request?.body);
         content += `\n`;
-        content += `export interface ${ pascalCase(route.name) }Response${ status } extends HttpResponse {\n`;
-        content += `\tbody: ${ pascalCase(route.name) }Response${ status }Body,\n`;
-        content += `\theaders: ${ pascalCase(route.name) }Response${ status }Headers,\n`;
-        content += `\tstatusCode: ${ status },\n`;
-        content += `\tstatusMessage: string,\n`;
-        content += `}\n`;
-
-        content += `\n`;
-        content += generateTypeBySchema(`${ pascalCase(route.name) }Response${ status }Body`, response.body);
-
-        content += `\n`;
-        content += generateTypeBySchema(`${ pascalCase(route.name) }Response${ status }Headers`, response.headers);
       }
-    } else {
-      content += `export type ${ pascalCase(route.name) }Response = HttpResponse;\n`;
+
+      if (route.metadata?.schema?.request?.headers) {
+        content += generateTypeBySchema(`${ pascalCase(route.metadata?.name) }Headers`, route.metadata?.schema?.request?.headers);
+        content += `\n`;
+      }
+
+      if (route.metadata?.schema?.request?.params) {
+        content += generateTypeBySchema(`${ pascalCase(route.metadata?.name) }Params`, route.metadata?.schema?.request?.params);
+        content += `\n`;
+      }
+
+      if (route.metadata?.schema?.request?.query) {
+        content += generateTypeBySchema(`${ pascalCase(route.metadata?.name) }Query`, route.metadata?.schema?.request?.query);
+        content += `\n`;
+      }
+
+      if (route.metadata?.schema?.responses) {
+        content += `export type ${ pascalCase(route.metadata?.name) }Response =\n`;
+
+        Object.entries(route.metadata?.schema?.responses || {}).forEach(([status, response], index, array) => {
+          content += `\t| ${ pascalCase(route.metadata?.name) }Response${ status }${ index === array.length - 1 ? ';' : '' }\n`;
+        });
+
+        for (const [status, response] of Object.entries(route.metadata?.schema?.responses || {})) {
+          content += `\n`;
+          content += `export interface ${ pascalCase(route.metadata?.name) }Response${ status } extends HttpResponse {\n`;
+          content += `\tbody: ${ pascalCase(route.metadata?.name) }Response${ status }Body,\n`;
+          content += `\theaders: ${ pascalCase(route.metadata?.name) }Response${ status }Headers,\n`;
+          content += `\tstatusCode: ${ status },\n`;
+          content += `\tstatusMessage: string,\n`;
+          content += `}\n`;
+
+          content += `\n`;
+          content += generateTypeBySchema(`${ pascalCase(route.metadata?.name) }Response${ status }Body`, response.body);
+
+          content += `\n`;
+          content += generateTypeBySchema(`${ pascalCase(route.metadata?.name) }Response${ status }Headers`, response.headers);
+        }
+      } else {
+        content += `export type ${ pascalCase(route.metadata?.name) }Response = HttpResponse;\n`;
+      }
     }
   }
 
@@ -275,9 +279,9 @@ function generateTypeStructureBySchema(schema: Schema): string {
     fs.mkdirSync(distDir);
   }
 
-  const dist: string = join(distDir, `${ kebabCase(paths[paths.length - 1]) }-http-client.ts`);
+  const dist: string = join(distDir, `${ kebabCase(paths[paths.length - 1]) }-contract.ts`);
 
-  fs.writeFileSync(dist, composeHttpClientTemplate(`${ pascalCase(paths[paths.length - 1]) }HttpClient`, apiSpecResponse.body));
+  fs.writeFileSync(dist, composeHttpClientTemplate(`${ pascalCase(paths[paths.length - 1]) }Contract`, apiSpecResponse.body));
 
   process.stdout.write(`File '${ cyan(dist) }' has been generated\n`);
 })();
