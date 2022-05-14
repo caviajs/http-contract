@@ -95,7 +95,7 @@ function composeHttpClientTemplate(name: string, apiSpec: ApiSpec): string {
       }
 
       content += `\t\t\tmethod: '${ route.method }',\n`;
-      content += `\t\t\tresponseType: 'buffer',\n`;
+      content += `\t\t\tresponseType: 'json',\n`;
       content += `\t\t\t// timeout: undefined,\n`;
       content += `\t\t\turl: url.toString(),\n`;
 
