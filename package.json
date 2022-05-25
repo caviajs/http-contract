@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "colorette": "~2.0.16",
+    "file-type": "~17.1.1",
     "no-case": "~3.0.4",
     "yargs": "~17.5.0"
   },
@@ -43,7 +44,7 @@
   },
   "peerDependencies": {
     "@caviajs/http-client": "~1.0.0",
-    "@caviajs/validator": "~1.0.0",
+    "@caviajs/http-router": "~1.0.0",
     "rxjs": "~7.5.4"
   },
   "jest": {

@@ -8,7 +8,17 @@ import { noCase } from 'no-case';
 import { hideBin } from 'yargs/helpers';
 import { HttpClient, HttpResponse } from '@caviajs/http-client';
 import { Specification } from '@caviajs/http-router';
-import { getSchemaNullable, getSchemaRequired, getSchemaStrict, Schema } from '@caviajs/validator';
+import { Schema } from './lib/schema';
+import {
+  getSchemaNullable,
+  getSchemaRequired,
+  getSchemaStrict,
+  isSchemaArray,
+  isSchemaBoolean,
+  isSchemaBuffer,
+  isSchemaEnum,
+  isSchemaNumber, isSchemaObject, isSchemaString
+} from './lib/validator';
 
 function camelCase(str: string): string {
   return noCase(str)
@@ -84,7 +94,7 @@ function composeHttpClientTemplate(name: string, specification: Specification): 
         content += `\n`;
       }
 
-      content += '\t\treturn await HttpClient.request({\n';
+      content += '\t\tconst response = await HttpClient.request({\n';
 
       if (route.metadata?.schema?.request?.body) {
         content += '\t\t\tbody: body,\n';
@@ -95,11 +105,49 @@ function composeHttpClientTemplate(name: string, specification: Specification): 
       }
 
       content += `\t\t\tmethod: '${ route.method }',\n`;
-      content += `\t\t\tresponseType: 'json',\n`;
-      content += `\t\t\t// timeout: undefined,\n`;
+      content += `\t\t\tresponseType: 'buffer',\n`;
       content += `\t\t\turl: url.toString(),\n`;
+      content += `\t\t});\n`;
+      content += `\n`;
 
-      content += `\t\t}) as ${ pascalCase(route.metadata?.name) }Response;\n`;
+      if (route.metadata?.schema?.responses) {
+        content += `\t\tswitch (response.statusCode) {\n`;
+
+        Object.entries(route.metadata?.schema?.responses || {}).forEach(([status, response], index, array) => {
+          content += `\t\t\tcase ${ status }:\n`;
+          content += `\t\t\t\treturn <${ camelCase(route.metadata?.name) }Response${ status }>{\n`;
+
+          if (isSchemaArray(response?.body)) {
+            content += `\t\t\t\t\tbody: JSON.parse(response.body.toString()),\n`;
+          } else if (isSchemaBoolean(response?.body)) {
+            content += `\t\t\t\t\tbody: JSON.parse(response.body.toString()),\n`;
+          } else if (isSchemaBuffer(response?.body)) {
+            content += `\t\t\t\t\tbody: response.body,\n`;
+          } else if (isSchemaEnum(response?.body)) {
+            // SchemaEnum => json albo text ??
+          } else if (isSchemaNumber(response?.body)) {
+            content += `\t\t\t\t\tbody: JSON.parse(response.body.toString()),\n`;
+          } else if (isSchemaObject(response?.body)) {
+            content += `\t\t\t\t\tbody: JSON.parse(response.body.toString()),\n`;
+          } else if (isSchemaString(response?.body)) {
+            content += `\t\t\t\t\tbody: response.body.toString(),\n`;
+          } else {
+            content += `\t\t\t\t\tbody: response.body,\n`;
+          }
+
+          content += `\t\t\t\t\theaders: response.headers,\n`;
+          content += `\t\t\t\t\tstatusCode: response.statusCode,\n`;
+          content += `\t\t\t\t\tstatusMessage: response.statusMessage,\n`;
+          content += `\t\t\t\t};\n`;
+        });
+
+        content += `\t\t\tdefault:\n`;
+        content += `\t\t\t\treturn <any>response;\n`;
+
+        content += `\t\t}\n`;
+      } else {
+        content += `\t\t\t\treturn <any>response;\n`;
+      }
 
       content += `\t}\n`;
     }
