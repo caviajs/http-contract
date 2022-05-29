@@ -30,8 +30,8 @@
     "yargs": "~17.5.0"
   },
   "devDependencies": {
-    "@caviajs/http-client": "~1.0.0",
-    "@caviajs/http-router": "~1.0.0",
+    "@caviajs/http-client": "~0.1.0",
+    "@caviajs/http-router": "~0.1.1",
     "@commitlint/cli": "~17.0.0",
     "@commitlint/config-conventional": "~17.0.0",
     "@types/jest": "~27.4.1",
@@ -45,8 +45,8 @@
     "typescript": "~4.2.4"
   },
   "peerDependencies": {
-    "@caviajs/http-client": "~1.0.0",
-    "@caviajs/http-router": "~1.0.0",
+    "@caviajs/http-client": "~0.1.0",
+    "@caviajs/http-router": "~0.1.1",
     "rxjs": "~7.5.4"
   },
   "jest": {
