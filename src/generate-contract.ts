@@ -6,7 +6,7 @@ import fs from 'fs';
 import { cyan } from 'colorette';
 import { noCase } from 'no-case';
 import { hideBin } from 'yargs/helpers';
-import { HttpClient, HttpResponse } from '@caviajs/http-client';
+import { HttpClient } from '@caviajs/http-client';
 import { Specification } from '@caviajs/http-router';
 import { Schema } from './lib/schema';
 import {
@@ -310,15 +310,17 @@ function generateTypeStructureBySchema(schema: Schema): string {
     .positional('url', { demandOption: true, type: 'string' })
     .parseSync();
 
-  const apiSpecResponse: HttpResponse<Specification> = await HttpClient.request({
+  const apiSpecResponse = await HttpClient.request({
     method: 'GET',
-    responseType: 'json',
+    responseType: 'buffer',
     url: argv.url as string,
   });
 
   if (apiSpecResponse.statusCode >= 400) {
     throw new Error(apiSpecResponse.statusMessage);
   }
+
+  const apiSpec: Specification = JSON.parse(apiSpecResponse.body.toString());
 
   const paths: string[] = (argv.output as string).replace(/(\/|\\)/g, sep).split(sep);
   const distDir: string = join(process.cwd(), ...paths.slice(0, -1));
@@ -329,7 +331,7 @@ function generateTypeStructureBySchema(schema: Schema): string {
 
   const dist: string = join(distDir, `${ kebabCase(paths[paths.length - 1]) }-contract.ts`);
 
-  fs.writeFileSync(dist, composeHttpClientTemplate(`${ pascalCase(paths[paths.length - 1]) }Contract`, apiSpecResponse.body));
+  fs.writeFileSync(dist, composeHttpClientTemplate(`${ pascalCase(paths[paths.length - 1]) }Contract`, apiSpec));
 
   process.stdout.write(`File '${ cyan(dist) }' has been generated\n`);
 })();
