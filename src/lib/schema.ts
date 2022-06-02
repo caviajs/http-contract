@@ -23,8 +23,8 @@ export type SchemaBoolean = {
 }
 
 export type SchemaBuffer = {
-  maxSize?: number;
-  minSize?: number;
+  maxLength?: number;
+  minLength?: number;
   nullable?: boolean;
   required?: boolean;
   type: 'buffer';

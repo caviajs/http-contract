@@ -132,12 +132,12 @@ export class Validator {
       errors.push({ message: `The value should be buffer`, path: path.join('.') });
     }
 
-    if (schema.hasOwnProperty('maxSize') && (Buffer.isBuffer(data) === false || data?.length > schema.maxSize)) {
-      errors.push({ message: `The value size should be less than or equal to ${ schema.maxSize }`, path: path.join('.') });
+    if (schema.hasOwnProperty('maxLength') && (Buffer.isBuffer(data) === false || data?.length > schema.maxLength)) {
+      errors.push({ message: `The value size should be less than or equal to ${ schema.maxLength }`, path: path.join('.') });
     }
 
-    if (schema.hasOwnProperty('minSize') && (Buffer.isBuffer(data) === false || data?.length < schema.minSize)) {
-      errors.push({ message: `The value size should be greater than or equal to ${ schema.minSize }`, path: path.join('.') });
+    if (schema.hasOwnProperty('minLength') && (Buffer.isBuffer(data) === false || data?.length < schema.minLength)) {
+      errors.push({ message: `The value size should be greater than or equal to ${ schema.minLength }`, path: path.join('.') });
     }
 
     return errors;

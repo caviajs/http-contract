@@ -3,13 +3,13 @@ import { SchemaBuffer, Validator } from '../src';
 const path: string[] = ['foo', 'bar'];
 
 describe('SchemaBuffer', () => {
-  it('should validate the maxSize condition correctly', () => {
+  it('should validate the maxLength condition correctly', () => {
     const schema: SchemaBuffer = {
-      maxSize: 10,
+      maxLength: 10,
       type: 'buffer',
     };
 
-    // greater than maxSize
+    // greater than maxLength
     expect(Validator.validate(schema, Buffer.from('HelloHelloHello'))).toEqual([
       { message: 'The value size should be less than or equal to 10', path: '' },
     ]);
@@ -17,30 +17,30 @@ describe('SchemaBuffer', () => {
       { message: 'The value size should be less than or equal to 10', path: 'foo.bar' },
     ]);
 
-    // equal to maxSize
+    // equal to maxLength
     expect(Validator.validate(schema, Buffer.from('HelloHello'))).toEqual([]);
     expect(Validator.validate(schema, Buffer.from('HelloHello'), path)).toEqual([]);
 
-    // less than maxSize
+    // less than maxLength
     expect(Validator.validate(schema, Buffer.from('Hello'))).toEqual([]);
     expect(Validator.validate(schema, Buffer.from('Hello'), path)).toEqual([]);
   });
 
-  it('should validate the minSize condition correctly', () => {
+  it('should validate the minLength condition correctly', () => {
     const schema: SchemaBuffer = {
-      minSize: 10,
+      minLength: 10,
       type: 'buffer',
     };
 
-    // greater than minSize
+    // greater than minLength
     expect(Validator.validate(schema, Buffer.from('HelloHelloHello'))).toEqual([]);
     expect(Validator.validate(schema, Buffer.from('HelloHelloHello'), path)).toEqual([]);
 
-    // equal to minSize
+    // equal to minLength
     expect(Validator.validate(schema, Buffer.from('HelloHello'))).toEqual([]);
     expect(Validator.validate(schema, Buffer.from('HelloHello'), path)).toEqual([]);
 
-    // less than minSize
+    // less than minLength
     expect(Validator.validate(schema, Buffer.from('Hello'))).toEqual([
       { message: 'The value size should be greater than or equal to 10', path: '' },
     ]);
