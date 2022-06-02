@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "colorette": "~2.0.16",
-    "file-type": "~17.1.1",
+    "file-type": "~17.1.2",
     "no-case": "~3.0.4",
     "prettier": "~2.6.2",
     "yargs": "~17.5.1"
