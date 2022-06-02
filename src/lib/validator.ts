@@ -50,10 +50,10 @@ export class Validator {
 
     if (isSchemaArray(schema)) {
       errors.push(...this.validateSchemaArray(schema, data, path));
-    } else if (isSchemaBuffer(schema)) {
-      errors.push(...this.validateSchemaBuffer(schema, data, path));
     } else if (isSchemaBoolean(schema)) {
       errors.push(...this.validateSchemaBoolean(schema, data, path));
+    } else if (isSchemaBuffer(schema)) {
+      errors.push(...this.validateSchemaBuffer(schema, data, path));
     } else if (isSchemaEnum(schema)) {
       errors.push(...this.validateSchemaEnum(schema, data, path));
     } else if (isSchemaNumber(schema)) {
