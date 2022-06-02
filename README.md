@@ -19,8 +19,6 @@ npm install @caviajs/http-contract @caviajs/http-client @caviajs/http-router @ca
 import { HttpContract } from '@caviajs/http-contract';
 
 // ...
-HttpContract.setup('/_meta/contract', httpRouter);
-// ...
 ```
 
 <div align="center">
