@@ -27,7 +27,7 @@
     "colorette": "~2.0.16",
     "file-type": "~17.1.1",
     "no-case": "~3.0.4",
-    "yargs": "~17.5.0"
+    "yargs": "~17.5.1"
   },
   "devDependencies": {
     "@caviajs/http-client": "~0.1.0",
