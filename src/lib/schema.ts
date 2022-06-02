@@ -1,4 +1,4 @@
-export type SchemaAny =
+export type Schema =
   | SchemaArray
   | SchemaBoolean
   | SchemaBuffer
@@ -8,13 +8,7 @@ export type SchemaAny =
   | SchemaString;
 
 export type SchemaArray = {
-  items?:
-    | SchemaArray
-    | SchemaBoolean
-    | SchemaEnum
-    | SchemaNumber
-    | SchemaObject
-    | SchemaString;
+  items?: Schema;
   maxItems?: number;
   minItems?: number;
   nullable?: boolean;
@@ -30,7 +24,6 @@ export type SchemaBoolean = {
 
 export type SchemaBuffer = {
   maxSize?: number;
-  mimeTypes?: string[];
   minSize?: number;
   nullable?: boolean;
   required?: boolean;
@@ -54,15 +47,7 @@ export type SchemaNumber = {
 
 export type SchemaObject = {
   nullable?: boolean;
-  properties?: {
-    [name: string]:
-      | SchemaArray
-      | SchemaBoolean
-      | SchemaEnum
-      | SchemaNumber
-      | SchemaObject
-      | SchemaString;
-  };
+  properties?: { [name: string]: Schema; };
   required?: boolean;
   strict?: boolean;
   type: 'object';

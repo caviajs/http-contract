@@ -1,5 +1,5 @@
 import { format } from 'prettier';
-import { SchemaAny } from '../schema';
+import { Schema } from '../schema';
 import {
   getSchemaNullable,
   getSchemaRequired,
@@ -13,7 +13,7 @@ import {
   isSchemaString,
 } from '../validator';
 
-export function generateStructure(schema: SchemaAny): string {
+export function generateStructure(schema: Schema): string {
   let content: string = '';
 
   if (isSchemaArray(schema)) {
@@ -63,7 +63,7 @@ export function generateStructure(schema: SchemaAny): string {
   return content;
 }
 
-const schema: SchemaAny = {
+const schema: Schema = {
   items: {
     properties: {
       code: {

@@ -1,15 +1,14 @@
-import { SchemaArray, SchemaBuffer, SchemaBoolean, SchemaEnum, SchemaNumber, SchemaObject, SchemaString } from './schema';
-import { ValidationError } from './types/validation-error';
+import { SchemaArray, SchemaBuffer, SchemaBoolean, SchemaEnum, SchemaNumber, SchemaObject, SchemaString, Schema } from './schema';
 
 const DEFAULT_NULLABLE: boolean = false;
 const DEFAULT_REQUIRED: boolean = false;
 const DEFAULT_STRICT: boolean = false;
 
-export function getSchemaNullable(schema: ValidateSchema): boolean {
+export function getSchemaNullable(schema: Schema): boolean {
   return schema.hasOwnProperty('nullable') ? schema.nullable : DEFAULT_NULLABLE;
 }
 
-export function getSchemaRequired(schema: ValidateSchema): boolean {
+export function getSchemaRequired(schema: Schema): boolean {
   return schema.hasOwnProperty('required') ? schema.required : DEFAULT_REQUIRED;
 }
 
@@ -46,7 +45,7 @@ export function isSchemaString(schema: any): schema is SchemaString {
 }
 
 export class Validator {
-  public static validate(schema: ValidateSchema, data: any, path: string[] = []): ValidationError[] {
+  public static validate(schema: Schema, data: any, path: string[] = []): ValidationError[] {
     const errors: ValidationError[] = [];
 
     if (isSchemaArray(schema)) {
@@ -130,11 +129,16 @@ export class Validator {
     }
 
     if (Buffer.isBuffer(data) === false) {
-      errors.push({ message: `The value should be binary`, path: path.join('.') });
+      errors.push({ message: `The value should be buffer`, path: path.join('.') });
     }
 
-    // tutaj sprawdzenie mimetype ! - tylko pytanie co z text-based formats like .txt, .csv, .svg ????
-    // tutaj sprawdzenie ext na podstawie file-type ! - tylko pytanie co z text-based formats like .txt, .csv, .svg ????
+    if (schema.hasOwnProperty('maxSize') && (Buffer.isBuffer(data) === false || data?.length > schema.maxSize)) {
+      errors.push({ message: `The value size should be less than or equal to ${ schema.maxSize }`, path: path.join('.') });
+    }
+
+    if (schema.hasOwnProperty('minSize') && (Buffer.isBuffer(data) === false || data?.length < schema.minSize)) {
+      errors.push({ message: `The value size should be greater than or equal to ${ schema.minSize }`, path: path.join('.') });
+    }
 
     return errors;
   }
@@ -194,7 +198,7 @@ export class Validator {
       errors.push({ message: `The value is required`, path: path.join('.') });
     }
 
-    if (typeof data === 'object' && data !== null && !Array.isArray(data)) {
+    if (typeof data === 'object' && data !== null && !Array.isArray(data) && !Buffer.isBuffer(data)) {
       if (getSchemaStrict(schema) === true) {
         for (const propertyName of Object.keys(data)) {
           if ((schema.properties || {}).hasOwnProperty(propertyName) === false) {
@@ -248,11 +252,7 @@ export class Validator {
   }
 }
 
-export type ValidateSchema =
-  | SchemaArray
-  | SchemaBuffer
-  | SchemaBoolean
-  | SchemaEnum
-  | SchemaNumber
-  | SchemaObject
-  | SchemaString;
+export interface ValidationError {
+  message: string;
+  path: string;
+}

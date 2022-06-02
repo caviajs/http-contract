@@ -1,4 +1,4 @@
-import { SchemaArray, SchemaBoolean, SchemaBuffer, SchemaEnum, SchemaNumber, SchemaObject, SchemaString } from './lib/schema';
+import { SchemaBuffer, SchemaObject, SchemaString } from './lib/schema';
 
 declare module '@caviajs/http-router' {
   export type BodySchema =
@@ -11,29 +11,37 @@ declare module '@caviajs/http-router' {
     | { contentSchema: SchemaBuffer; contentType: 'image/tiff'; }
     | { contentSchema: SchemaString; contentType: 'text/plain'; }
 
+  export type HeadersSchema = { [name: string]: SchemaString; }
+
+  export type ParamsSchema = { [name: string]: SchemaString; }
+
+  export type QuerySchema = { [name: string]: SchemaString; }
+
   export interface RouteMetadata {
-    contract?: {
+    readonly contract?: {
       readonly name?: string;
       readonly request?: {
         readonly body?: BodySchema;
-        readonly headers?: {
-          [name: string]: SchemaString;
-        };
-        readonly params?: {
-          [name: string]: SchemaString;
-        };
-        readonly query?: {
-          [name: string]: SchemaString;
-        };
+        readonly headers?: HeadersSchema;
+        readonly params?: ParamsSchema;
+        readonly query?: QuerySchema;
       };
       readonly responses?: {
         readonly [status: number]: {
           readonly body?: BodySchema;
-          readonly headers?: {
-            [name: string]: SchemaString;
-          };
+          readonly headers?: HeadersSchema;
         };
       };
     };
+  }
+}
+
+declare module 'http' {
+  export interface IncomingMessage {
+    // todo: inferred by contract?
+    // body: any | undefined;
+    // headers: http.IncomingHttpHeaders;
+    // params: http.Params;
+    // query: {};
   }
 }
