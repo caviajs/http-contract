@@ -1,4 +1,5 @@
 import { SchemaArray, SchemaBuffer, SchemaBoolean, SchemaEnum, SchemaNumber, SchemaObject, SchemaString } from './schema';
+import { ValidationError } from './types/validation-error';
 
 const DEFAULT_NULLABLE: boolean = false;
 const DEFAULT_REQUIRED: boolean = false;
@@ -245,11 +246,6 @@ export class Validator {
 
     return errors;
   }
-}
-
-export interface ValidationError {
-  message: string;
-  path: string;
 }
 
 export type ValidateSchema =

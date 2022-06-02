@@ -12,7 +12,7 @@ npm install @caviajs/http-contract @caviajs/http-client @caviajs/http-router @ca
 ```
 
 <div align="center">
-<h4>Setup</h4>
+<h4>Setup contract route</h4>
 </div>
 
 ```typescript
@@ -20,6 +20,14 @@ import { HttpContract } from '@caviajs/http-contract';
 
 // ...
 HttpContract.setup('/_meta/contract', httpRouter);
+// ...
+```
+
+<div align="center">
+<h4>Setup schema in routes</h4>
+</div>
+
+```typescript
 // ...
 ```
 
