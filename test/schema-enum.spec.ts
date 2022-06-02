@@ -112,6 +112,14 @@ describe('SchemaEnum', () => {
       { message: 'The value must be one of the following values: Hello, World', path: 'foo.bar' },
     ]);
 
+    // buffer
+    expect(Validator.validate(schema, Buffer.from('Hello World'))).toEqual([
+      { message: 'The value must be one of the following values: Hello, World', path: '' },
+    ]);
+    expect(Validator.validate(schema, Buffer.from('Hello World'), path)).toEqual([
+      { message: 'The value must be one of the following values: Hello, World', path: 'foo.bar' },
+    ]);
+
     // undefined
     expect(Validator.validate(schema, undefined)).toEqual([
       { message: 'The value is required', path: '' },

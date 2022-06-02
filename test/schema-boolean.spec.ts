@@ -76,6 +76,14 @@ describe('SchemaBoolean', () => {
     expect(Validator.validate(schema, false)).toEqual([]);
     expect(Validator.validate(schema, false, path)).toEqual([]);
 
+    // buffer
+    expect(Validator.validate(schema, Buffer.from('Hello World'))).toEqual([
+      { message: 'The value should be boolean', path: '' },
+    ]);
+    expect(Validator.validate(schema, Buffer.from('Hello World'), path)).toEqual([
+      { message: 'The value should be boolean', path: 'foo.bar' },
+    ]);
+
     // undefined
     expect(Validator.validate(schema, undefined)).toEqual([
       { message: 'The value is required', path: '' },

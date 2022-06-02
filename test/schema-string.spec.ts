@@ -157,6 +157,14 @@ describe('SchemaString', () => {
       { message: 'The value should be string', path: 'foo.bar' },
     ]);
 
+    // buffer
+    expect(Validator.validate(schema, Buffer.from('Hello World'))).toEqual([
+      { message: 'The value should be string', path: '' },
+    ]);
+    expect(Validator.validate(schema, Buffer.from('Hello World'), path)).toEqual([
+      { message: 'The value should be string', path: 'foo.bar' },
+    ]);
+
     // undefined
     expect(Validator.validate(schema, undefined)).toEqual([
       { message: 'The value is required', path: '' },
