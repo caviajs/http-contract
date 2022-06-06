@@ -1,21 +1,35 @@
-import { SchemaBuffer, SchemaObject, SchemaString } from './lib/schema';
+import { SchemaArray } from './lib/types/schema-array';
+import { SchemaBoolean } from './lib/types/schema-boolean';
+import { SchemaBuffer } from './lib/types/schema-buffer';
+import { SchemaEnum } from './lib/types/schema-enum';
+import { SchemaNumber } from './lib/types/schema-number';
+import { SchemaObject } from './lib/types/schema-object';
+import { SchemaStream } from './lib/types/schema-stream';
+import { SchemaString } from './lib/types/schema-string';
 
 declare module '@caviajs/http-router' {
   export type BodySchema =
-    | { contentSchema: SchemaObject; contentType: 'application/json'; }
-    | { contentSchema: SchemaBuffer; contentType: 'application/octet-stream'; }
+    | { contentSchema: SchemaArray | SchemaBoolean | SchemaBuffer | SchemaEnum | SchemaNumber | SchemaObject | SchemaStream; contentType: 'application/json'; }
+    | { contentSchema: SchemaBuffer | SchemaStream; contentType: 'application/octet-stream'; }
     | { contentSchema: SchemaObject; contentType: 'application/x-www-form-urlencoded'; }
-    | { contentSchema: SchemaBuffer; contentType: 'image/gif'; }
-    | { contentSchema: SchemaBuffer; contentType: 'image/jpeg'; }
-    | { contentSchema: SchemaBuffer; contentType: 'image/png'; }
-    | { contentSchema: SchemaBuffer; contentType: 'image/tiff'; }
-    | { contentSchema: SchemaString; contentType: 'text/plain'; }
+    | { contentSchema: SchemaBuffer | SchemaStream | SchemaString; contentType: 'application/xml'; }
+    | { contentSchema: SchemaBuffer | SchemaStream; contentType: 'image/gif'; }
+    | { contentSchema: SchemaBuffer | SchemaStream; contentType: 'image/jpeg'; }
+    | { contentSchema: SchemaBuffer | SchemaStream; contentType: 'image/png'; }
+    | { contentSchema: SchemaBuffer | SchemaStream; contentType: 'image/tiff'; }
+    | { contentSchema: SchemaString | SchemaStream; contentType: 'text/css'; }
+    | { contentSchema: SchemaString | SchemaStream; contentType: 'text/csv'; }
+    | { contentSchema: SchemaString | SchemaStream; contentType: 'text/html'; }
+    | { contentSchema: SchemaString | SchemaStream; contentType: 'text/plain'; }
 
-  export type HeadersSchema = { [name: string]: SchemaString; }
+  export type HeadersSchema =
+    | { [name: string]: SchemaString; }
 
-  export type ParamsSchema = { [name: string]: SchemaString; }
+  export type ParamsSchema =
+    | { [name: string]: SchemaString; }
 
-  export type QuerySchema = { [name: string]: SchemaString; }
+  export type QuerySchema =
+    | { [name: string]: SchemaString; }
 
   export interface RouteMetadata {
     readonly contract?: {
@@ -39,9 +53,9 @@ declare module '@caviajs/http-router' {
 declare module 'http' {
   export interface IncomingMessage {
     // todo: inferred by contract?
-    // body: any | undefined;
+    body: any | undefined;
     // headers: http.IncomingHttpHeaders;
     // params: http.Params;
-    // query: {};
+    query: { [name: string]: string; } | undefined;
   }
 }
