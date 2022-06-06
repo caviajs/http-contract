@@ -24,7 +24,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "colorette": "~2.0.16",
+    "colorette": "~2.0.17",
     "no-case": "~3.0.4",
     "prettier": "~2.6.2",
     "yargs": "~17.5.1"
