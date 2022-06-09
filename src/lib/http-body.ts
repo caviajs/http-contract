@@ -3,15 +3,13 @@ import stream, { Readable } from 'stream';
 import http from 'http';
 import { HttpException } from '@caviajs/http-exception';
 
-const DEFAULT_PARSE_OPTIONS: ParseOptions = {
-  limit: 1048576, // 10 Mbits
-};
-
 export class HttpBody {
-  public static async parse<T = any>(request: http.IncomingMessage, options?: ParseOptions): Promise<Readable | Buffer> {
+  public static async parse<T = any>(request: http.IncomingMessage, outputType: 'stream'): Promise<Readable>;
+  public static async parse<T = any>(request: http.IncomingMessage, outputType: 'buffer'): Promise<Buffer>;
+  public static async parse<T = any>(request: http.IncomingMessage, outputType: 'json'): Promise<any>;
+  public static async parse<T = any>(request: http.IncomingMessage, outputType: 'string'): Promise<string>;
+  public static async parse<T = any>(request: http.IncomingMessage, outputType: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      options = { ...DEFAULT_PARSE_OPTIONS, ...options || {} };
-
       if (request.headers['transfer-encoding'] === undefined && isNaN(parseInt(request.headers['content-length'], 10))) {
         return resolve(undefined);
       }
@@ -23,13 +21,13 @@ export class HttpBody {
       }
 
       // content-length header limit check
-      const contentLength = parseInt(request.headers['content-length'], 10);
+      // const contentLength: number = parseInt(request.headers['content-length'], 10);
+      //
+      // if (contentLength && contentLength > options?.limit) {
+      //   return reject(new HttpException(413, `Payload Too Large`));
+      // }
 
-      if (contentLength && contentLength > options?.limit) {
-        return reject(new HttpException(413, `Payload Too Large`));
-      }
-
-      let requestStream: stream.Stream = request as stream.Stream;
+      let requestStream: Readable = request;
 
       // content-encoding
       const encoding = request.headers['content-encoding']?.toLowerCase();
@@ -47,6 +45,10 @@ export class HttpBody {
         }
       }
 
+      if (outputType === 'stream') {
+        return resolve(requestStream);
+      }
+
       // data
       let data: Buffer = Buffer.alloc(0);
 
@@ -54,18 +56,34 @@ export class HttpBody {
         data = Buffer.concat([data, chunk]);
 
         // buffer length limit check
-        if (data.length > options?.limit) {
-          return reject(new HttpException(413, `Payload too large`));
-        }
+        // if (data.length > options?.limit) {
+        //   return reject(new HttpException(413, `Payload too large`));
+        // }
       });
 
       requestStream.on('end', () => {
-        // content-length header check with buffer length
-        if (contentLength && contentLength !== data.length) {
-          return reject(new HttpException(400, 'Request size did not match Content-Length'));
+        {
+          // content-length header check with buffer length
+          const contentLength: number = parseInt(request.headers['content-length'], 10);
+
+          if (contentLength && contentLength !== data.length) {
+            return reject(new HttpException(400, 'Request size did not match Content-Length'));
+          }
         }
 
-        return resolve(data);
+        switch (outputType) {
+          case 'buffer':
+            return resolve(data);
+          case 'json':
+            try {
+              return resolve(JSON.parse(data.toString()));
+              // request.body = JSON.parse(contentTypeCharset ? iconv.decode(data, contentTypeCharset) : data.toString());
+            } catch (err) {
+              return reject(new HttpException(400, `Invalid JSON`));
+            }
+          case 'string':
+            return resolve(data.toString());
+        }
       });
 
       requestStream.on('error', error => {
@@ -76,6 +94,5 @@ export class HttpBody {
 }
 
 export interface ParseOptions {
-  limit?: number;
-  outputType?: 'buffer' | 'stream';
+  outputType: 'buffer' | 'stream' | 'json' | 'string';
 }
