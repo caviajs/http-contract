@@ -19,14 +19,14 @@ import { validateSchemaBuffer } from './utils/validate-schema-buffer';
 import { validateSchemaNumber } from './utils/validate-schema-number';
 import { validateSchemaEnum } from './utils/validate-schema-enum';
 import { validateSchemaObject } from './utils/validate-schema-object';
-
-// 1. request body parsing
-// 2. request query parsing
-// 3. walidacja lub walidacja w trakcie stremowania
+import iconv from 'iconv-lite';
+import { Observable } from 'rxjs';
+import { HttpBody } from './http-body';
+import { getContentTypeParameter } from './utils/get-content-type-parameter';
 
 export class HttpContract {
   public setup(): Interceptor {
-    return (request: http.IncomingMessage, response: http.ServerResponse, next: Next) => {
+    return async (request: http.IncomingMessage, response: http.ServerResponse, next: Next): Promise<Observable<any>> => {
       const errors: ValidationError[] = [];
 
       /** request.body **/
@@ -34,50 +34,59 @@ export class HttpContract {
         const contentSchema = request.metadata.contract.request.body.contentSchema;
         const contentType = request.metadata.contract.request.body.contentType;
 
-        const mime: string | undefined = getContentTypeMime(request.headers['content-type'] || '');
+        // The Content-Length header is mandatory for messages with entity bodies,
+        // unless the message is transported using chunked encoding (transfer-encoding).
+        if (request.headers['transfer-encoding'] === undefined && request.headers['content-length'] === undefined) {
+          throw new HttpException(411);
+        }
+
+        const contentTypeMime: string | undefined = getContentTypeMime(request.headers['content-type']);
+        const contentTypeCharset: string | undefined = getContentTypeParameter(request.headers['content-type'], 'charset');
+
+        if (contentTypeCharset && !iconv.encodingExists(contentTypeCharset)) {
+          return Promise.reject(new HttpException(415, `Unsupported charset: ${ contentTypeCharset }`));
+        }
 
         // + buffer magic number scanning?
-        if (contentType.toLowerCase() !== mime?.toLowerCase()) {
+        if (contentType.toLowerCase() !== contentTypeMime?.toLowerCase()) {
           throw new HttpException(400, 'Invalid Content-Type');
         }
 
         if (isSchemaArray(contentSchema)) {
-          request.body = ''; // próba zparsowania jsona
+          request.body = await HttpBody.parse(request, 'json');
 
           errors.push(...validateSchemaArray(contentSchema, request.body, ['request', 'body']));
         } else if (isSchemaBoolean(contentSchema)) {
-          request.body = ''; // próba zparsowania jsona
+          request.body = await HttpBody.parse(request, 'json');
 
           errors.push(...validateSchemaBoolean(contentSchema, request.body, ['request', 'body']));
         } else if (isSchemaBuffer(contentSchema)) {
-          request.body = ''; // zebranie bittów buffera
+          request.body = await HttpBody.parse(request, 'buffer');
 
           errors.push(...validateSchemaBuffer(contentSchema, request.body, ['request', 'body']));
         } else if (isSchemaEnum(contentSchema)) {
-          request.body = ''; // próba zparsowania jsona
+          request.body = await HttpBody.parse(request, 'json');
 
           errors.push(...validateSchemaEnum(contentSchema, request.body, ['request', 'body']));
         } else if (isSchemaNumber(contentSchema)) {
-          request.body = ''; // próba zparsowania jsona
+          request.body = await HttpBody.parse(request, 'json');
 
           errors.push(...validateSchemaNumber(contentSchema, request.body, ['request', 'body']));
         } else if (isSchemaObject(contentSchema)) {
-          request.body = ''; // próba zparsowania jsona
+          request.body = await HttpBody.parse(request, 'json');
 
           errors.push(...validateSchemaObject(contentSchema, request.body, ['request', 'body']));
         } else if (isSchemaStream(contentSchema)) {
-          request.body = ''; // stream
+          request.body = await HttpBody.parse(request, 'stream');
 
           // ...
         } else if (isSchemaString(contentSchema)) {
-          request.body = ''; // // próba zparsowania tekstu
+          request.body = await HttpBody.parse(request, 'string');
 
           errors.push(...validateSchemaString(contentSchema, request.body, ['request', 'body']));
         } else {
           throw new HttpException(500);
         }
-      } else {
-        request.body = undefined;
       }
 
       /** request.headers **/
@@ -98,7 +107,6 @@ export class HttpContract {
       request.query = url.parse(request.url, true).query as any;
 
       if (request.metadata?.contract?.request?.query) {
-
         for (const [name, schema] of Object.entries(request.metadata.contract.request.query)) {
           errors.push(...validateSchemaString(schema, request.query, ['request', 'query', name]));
         }
