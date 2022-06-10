@@ -9,6 +9,9 @@ import { SchemaObject } from './lib/types/schema-object';
 import { SchemaStream } from './lib/types/schema-stream';
 import { SchemaString } from './lib/types/schema-string';
 
-export function generateType(name: string, schema: SchemaArray | SchemaBoolean | SchemaBuffer | SchemaEnum | SchemaNumber | SchemaObject | SchemaStream | SchemaString): string {
+export function generateType(
+  name: string,
+  schema: SchemaArray | SchemaBoolean | SchemaBuffer | SchemaEnum | SchemaNumber | SchemaObject | SchemaStream | SchemaString,
+): string {
   return `export type ${ pascalCase(name) } = ${ generateStructure(schema) };`;
 }
