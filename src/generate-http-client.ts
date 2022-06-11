@@ -71,7 +71,7 @@ export function generateHttpClient(name: string, specification: Specification): 
 
         for (const [status, response] of Object.entries(route.metadata?.contract?.responses || {})) {
           content += `case ${ status }:`;
-          content += `return <${ camelCaseName }Response${ status }>{`;
+          content += `return <${ pascalCaseName }Response${ status }>{`;
 
           if (isSchemaArray(response.body)) {
             content += `body: response.body,`; // streamToJson
