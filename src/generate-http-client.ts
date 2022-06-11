@@ -20,6 +20,25 @@ export function generateHttpClient(name: string, specification: Specification): 
   content += `import { HttpClient, HttpResponse } from '@caviajs/http-client';`;
   content += `import { Readable } from 'stream';`;
 
+  content += `function streamToBuffer(stream: Readable): Promise<Buffer> {`;
+  content += `return new Promise((resolve, reject) => {`;
+  content += `let buffer: Buffer = Buffer.alloc(0);`;
+  content += `stream.on('data', (chunk: Buffer) => {`;
+  content += `buffer = Buffer.concat([buffer, chunk]);`;
+  content += `});`;
+  content += `stream.on('end', () => resolve(buffer));`;
+  content += `stream.on('error', (err) => reject(err));`;
+  content += `});`;
+  content += `}`;
+
+  content += `async function streamToJSON(stream: Readable): Promise<boolean | number | null | object> {`;
+  content += `return JSON.parse((await streamToBuffer(stream)).toString());`;
+  content += `}`;
+
+  content += `async function streamToString(stream: Readable): Promise<string> {`;
+  content += `return (await streamToBuffer(stream)).toString();`;
+  content += `}`;
+
   content += `export class ${ name } {`;
   content += `public static connectionUrl: string = '';`;
 
@@ -64,46 +83,43 @@ export function generateHttpClient(name: string, specification: Specification): 
       content += `url: url.toString(),`;
       content += '});';
 
-      if (!route.metadata.contract?.responses) {
-        content += `return response;`;
-      } else {
-        content += `switch (response.statusCode) {`;
+      content += `switch (response.statusCode) {`;
 
-        for (const [status, response] of Object.entries(route.metadata?.contract?.responses || {})) {
-          content += `case ${ status }:`;
-          content += `return <${ pascalCaseName }Response${ status }>{`;
+      for (const [status, response] of Object.entries(route.metadata?.contract?.responses || {})) {
+        content += `case ${ status }:`;
+        content += `return <${ pascalCaseName }Response${ status }>{`;
 
-          if (isSchemaArray(response.body)) {
-            content += `body: response.body,`; // streamToJson
-          } else if (isSchemaBoolean(response.body)) {
-            content += `body: response.body,`; // streamToJson
-          } else if (isSchemaBuffer(response.body)) {
-            content += `body: response.body,`; // streamToBuffer
-          } else if (isSchemaEnum(response.body)) {
-            content += `body: response.body,`; // streamToJson
-          } else if (isSchemaNumber(response.body)) {
-            content += `body: response.body,`; // streamToJson
-          } else if (isSchemaObject(response.body)) {
-            content += `body: response.body,`; // streamToJson
-          } else if (isSchemaStream(response.body)) {
-            content += `body: response.body,`;
-          } else if (isSchemaString(response.body)) {
-            content += `body: response.body,`; // streamToString
-          } else {
-            content += `body: response.body,`;
-          }
-
-          content += `headers: response.headers,`;
-          content += `statusCode: response.statusCode,`;
-          content += `statusMessage: response.statusMessage,`;
-          content += `};`;
+        if (isSchemaArray(response.body?.contentSchema)) {
+          content += `body: await streamToJSON(response.body),`;
+        } else if (isSchemaBoolean(response.body?.contentSchema)) {
+          content += `body: await streamToJSON(response.body),`;
+        } else if (isSchemaBuffer(response.body?.contentSchema)) {
+          content += `body: await streamToBuffer(response.body),`;
+        } else if (isSchemaEnum(response.body?.contentSchema)) {
+          content += `body: await streamToJSON(response.body),`;
+        } else if (isSchemaNumber(response.body?.contentSchema)) {
+          content += `body: await streamToJSON(response.body),`;
+        } else if (isSchemaObject(response.body?.contentSchema)) {
+          content += `body: await streamToJSON(response.body),`;
+        } else if (isSchemaStream(response.body?.contentSchema)) {
+          content += `body: response.body,`;
+        } else if (isSchemaString(response.body?.contentSchema)) {
+          content += `body: await streamToString(response.body),`;
+        } else {
+          content += `body: response.body,`;
         }
 
-        content += 'default:';
-        content += 'return response';
-
-        content += `}`;
+        content += `headers: response.headers,`;
+        content += `statusCode: response.statusCode,`;
+        content += `statusMessage: response.statusMessage,`;
+        content += `};`;
       }
+
+      content += 'default:';
+      content += 'return response';
+
+      content += `}`;
+
 
       content += `}`;
     }
@@ -150,6 +166,7 @@ export function generateHttpClient(name: string, specification: Specification): 
         for (const status of Object.keys(route.metadata.contract?.responses || {})) {
           content += `| ${ pascalCaseName }Response${ status }`;
         }
+        content += '| HttpResponse<Readable>';
         content += `;`;
 
         for (const [status, response] of Object.entries(route.metadata.contract?.responses || {})) {
