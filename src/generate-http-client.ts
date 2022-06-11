@@ -116,7 +116,7 @@ export function generateHttpClient(name: string, specification: Specification): 
       }
 
       content += 'default:';
-      content += 'return response';
+      content += 'return <any>response';
 
       content += `}`;
 
@@ -166,7 +166,6 @@ export function generateHttpClient(name: string, specification: Specification): 
         for (const status of Object.keys(route.metadata.contract?.responses || {})) {
           content += `| ${ pascalCaseName }Response${ status }`;
         }
-        content += '| HttpResponse<Readable>';
         content += `;`;
 
         for (const [status, response] of Object.entries(route.metadata.contract?.responses || {})) {
