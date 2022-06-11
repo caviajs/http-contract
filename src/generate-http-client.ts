@@ -5,6 +5,14 @@ import { pascalCase } from './lib/utils/pascal-case';
 import { format } from 'prettier';
 import { camelCase } from './lib/utils/camel-case';
 import { getSchemaRequired } from './lib/utils/get-schema-required';
+import { isSchemaArray } from './lib/utils/is-schema-array';
+import { isSchemaBoolean } from './lib/utils/is-schema-boolean';
+import { isSchemaBuffer } from './lib/utils/is-schema-buffer';
+import { isSchemaEnum } from './lib/utils/is-schema-enum';
+import { isSchemaNumber } from './lib/utils/is-schema-number';
+import { isSchemaObject } from './lib/utils/is-schema-object';
+import { isSchemaStream } from './lib/utils/is-schema-stream';
+import { isSchemaString } from './lib/utils/is-schema-string';
 
 export function generateHttpClient(name: string, specification: Specification): string {
   let content: string = '';
@@ -64,7 +72,27 @@ export function generateHttpClient(name: string, specification: Specification): 
         for (const [status, response] of Object.entries(route.metadata?.contract?.responses || {})) {
           content += `${ status }:`;
           content += `return <${ camelCaseName }Response${ status }>{`;
-          content += `body: response.body,`; // todo auto serializacja tutaj streamToBuffer, streamToJson, streamToString ?
+
+          if (isSchemaArray(response.body)) {
+            content += `body: response.body,`; // streamToJson
+          } else if (isSchemaBoolean(response.body)) {
+            content += `body: response.body,`; // streamToJson
+          } else if (isSchemaBuffer(response.body)) {
+            content += `body: response.body,`; // streamToBuffer
+          } else if (isSchemaEnum(response.body)) {
+            content += `body: response.body,`; // streamToJson
+          } else if (isSchemaNumber(response.body)) {
+            content += `body: response.body,`; // streamToJson
+          } else if (isSchemaObject(response.body)) {
+            content += `body: response.body,`; // streamToJson
+          } else if (isSchemaStream(response.body)) {
+            content += `body: response.body,`;
+          } else if (isSchemaString(response.body)) {
+            content += `body: response.body,`; // streamToString
+          } else {
+            content += `body: response.body,`;
+          }
+
           content += `headers: response.headers,`;
           content += `statusCode: response.statusCode,`;
           content += `statusMessage: response.statusMessage,`;
@@ -82,35 +110,6 @@ export function generateHttpClient(name: string, specification: Specification): 
   }
 
   content += `}`;
-
-  // for() {
-  // tutaj metody
-  // public static async getUsers(payload: { body, headers, params, query, timeout }): Promise<GetUsersResponse> {
-  //     const url: URL = new URL('/users/:id', this.connectionUrl);
-  //
-  //    Object.entries(params || {}).forEach(([key, value]) => {
-  //       url.pathname = url.pathname.replace(`:${ key }`, value);
-  //     });
-  //
-  //     const response = await HttpClient.request({
-  //       method: 'GET',
-  //       responseType: 'buffer',
-  //       url: url.toString(),
-  //     });
-  //
-  //     switch (response.statusCode) {
-  //       case 200:
-  //         return <GetUsersResponse200>{
-  //           body: JSON.parse(response.body.toString()),
-  //           headers: response.headers,
-  //           statusCode: response.statusCode,
-  //           statusMessage: response.statusMessage,
-  //         };
-  //       default:
-  //         return <any>response;
-  //     }
-  //   }
-  // }
 
   for (const route of specification.routes) {
     if (route.metadata?.contract?.name) {
