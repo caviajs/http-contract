@@ -70,7 +70,7 @@ export function generateHttpClient(name: string, specification: Specification): 
         content += `switch (response.statusCode) {`;
 
         for (const [status, response] of Object.entries(route.metadata?.contract?.responses || {})) {
-          content += `${ status }:`;
+          content += `case ${ status }:`;
           content += `return <${ camelCaseName }Response${ status }>{`;
 
           if (isSchemaArray(response.body)) {
