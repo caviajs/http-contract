@@ -36,23 +36,23 @@ export function generateHttpClient(name: string, specification: Specification): 
       content += `const url: URL = new URL('${ route.path }', this.connectionUrl);`;
 
       if (route.metadata.contract.request?.params) {
-        content += `Object.entries(payload.params || {}).forEach(([key, value]) => {`;
+        content += `Object.entries(payload?.params || {}).forEach(([key, value]) => {`;
         content += 'url.pathname = url.pathname.replace(`:${ key }`, value);';
         content += `});`;
       }
 
       if (route.metadata.contract.request?.query) {
-        content += 'Object.entries(payload.query || {}).forEach(([key, value]) => {';
+        content += 'Object.entries(payload?.query || {}).forEach(([key, value]) => {';
         content += 'url.searchParams.set(key, value);';
         content += '});';
       }
 
       content += 'const response: HttpResponse<Readable> = await HttpClient.request({';
-      content += route.metadata.contract.request?.body ? 'body: payload.body,' : '';
-      content += route.metadata.contract.request?.headers ? 'headers: payload.headers,' : '';
+      content += route.metadata.contract.request?.body ? 'body: payload?.body,' : '';
+      content += route.metadata.contract.request?.headers ? 'headers: payload?.headers,' : '';
       content += `method: '${ route.method }',`;
       content += `responseType: 'stream',`;
-      content += `timeout: payload.timeout,`;
+      content += `timeout: payload?.timeout,`;
       content += `url: url.toString(),`;
       content += '});';
 
