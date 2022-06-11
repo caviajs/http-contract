@@ -180,5 +180,5 @@ export function generateHttpClient(name: string, specification: Specification): 
     }
   }
 
-  return format(content);
+  return format(content, { semi: true, singleQuote: true, parser: 'typescript' });
 }
