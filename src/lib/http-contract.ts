@@ -25,7 +25,7 @@ import { HttpBody } from './http-body';
 import { getContentTypeParameter } from './utils/get-content-type-parameter';
 
 export class HttpContract {
-  public setup(): Interceptor {
+  public static setup(): Interceptor {
     return async (request: http.IncomingMessage, response: http.ServerResponse, next: Next): Promise<Observable<any>> => {
       const errors: ValidationError[] = [];
 
