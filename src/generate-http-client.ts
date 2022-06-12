@@ -19,6 +19,8 @@ export function generateHttpClient(name: string, specification: Specification): 
 
   content += `import { HttpClient, HttpResponse } from '@caviajs/http-client';`;
   content += `import { Readable } from 'stream';`;
+  content += `import http from 'http';`;
+  content += `import https from 'https';`;
 
   content += `function streamToBuffer(stream: Readable): Promise<Buffer> {`;
   content += `return new Promise((resolve, reject) => {`;
@@ -54,6 +56,7 @@ export function generateHttpClient(name: string, specification: Specification): 
       const isPayloadRequired: boolean = isBodyRequired || isHeadersRequired || isParamsRequired || isQueryRequired;
 
       content += `public static async ${ camelCaseName }(payload${ isPayloadRequired ? '' : '?' }: {`;
+      content += `agent?: http.Agent | https.Agent,`;
       content += route.metadata.contract.request?.body ? `body${ isBodyRequired ? '' : '?' }: ${ pascalCaseName }Body,` : '';
       content += route.metadata.contract.request?.headers ? `headers${ isHeadersRequired ? '' : '?' }: ${ pascalCaseName }Headers,` : '';
       content += route.metadata.contract.request?.params ? `params${ isParamsRequired ? '' : '?' }: ${ pascalCaseName }Params,` : '';
