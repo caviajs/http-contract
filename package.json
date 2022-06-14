@@ -24,7 +24,7 @@
     "prepare": "husky install"
   },
   "dependencies": {
-    "colorette": "~2.0.17",
+    "colorette": "~2.0.18",
     "iconv-lite": "~0.6.3",
     "no-case": "~3.0.4",
     "prettier": "~2.6.2",
