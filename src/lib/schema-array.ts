@@ -1,18 +1,15 @@
-import { SchemaArray } from '../types/schema-array';
-import { ValidationError } from '../types/validation-error';
-import { getSchemaNullable } from './get-schema-nullable';
-import { getSchemaRequired } from './get-schema-required';
-import { isSchemaArray } from './is-schema-array';
-import { isSchemaBoolean } from './is-schema-boolean';
-import { isSchemaEnum } from './is-schema-enum';
-import { isSchemaNumber } from './is-schema-number';
-import { isSchemaObject } from './is-schema-object';
-import { isSchemaString } from './is-schema-string';
-import { validateSchemaBoolean } from './validate-schema-boolean';
-import { validateSchemaEnum } from './validate-schema-enum';
-import { validateSchemaNumber } from './validate-schema-number';
-import { validateSchemaString } from './validate-schema-string';
-import { validateSchemaObject } from './validate-schema-object';
+import { isSchemaBoolean, SchemaBoolean, validateSchemaBoolean } from './schema-boolean';
+import { isSchemaEnum, SchemaEnum, validateSchemaEnum } from './schema-enum';
+import { isSchemaNumber, SchemaNumber, validateSchemaNumber } from './schema-number';
+import { isSchemaObject, SchemaObject, validateSchemaObject } from './schema-object';
+import { isSchemaString, SchemaString, validateSchemaString } from './schema-string';
+import { ValidationError } from './validation-error';
+import { getSchemaNullable } from './utils/get-schema-nullable';
+import { getSchemaRequired } from './utils/get-schema-required';
+
+export function isSchemaArray(schema: any): schema is SchemaArray {
+  return schema?.type === 'array';
+}
 
 export function validateSchemaArray(schema: SchemaArray, data: any, path: string[] = []): ValidationError[] {
   if ((getSchemaNullable(schema) === true && data === null) || (getSchemaRequired(schema) === false && data === undefined)) {
@@ -66,4 +63,19 @@ export function validateSchemaArray(schema: SchemaArray, data: any, path: string
   }
 
   return errors;
+}
+
+export type SchemaArray = {
+  items?:
+    | SchemaArray
+    | SchemaBoolean
+    | SchemaEnum
+    | SchemaNumber
+    | SchemaObject
+    | SchemaString;
+  maxItems?: number;
+  minItems?: number;
+  nullable?: boolean;
+  required?: boolean;
+  type: 'array';
 }

@@ -1,7 +1,10 @@
-import { SchemaNumber } from '../types/schema-number';
-import { ValidationError } from '../types/validation-error';
-import { getSchemaRequired } from './get-schema-required';
-import { getSchemaNullable } from './get-schema-nullable';
+import { ValidationError } from './validation-error';
+import { getSchemaNullable } from './utils/get-schema-nullable';
+import { getSchemaRequired } from './utils/get-schema-required';
+
+export function isSchemaNumber(schema: any): schema is SchemaNumber {
+  return schema?.type === 'number';
+}
 
 export function validateSchemaNumber(schema: SchemaNumber, data: any, path: string[] = []): ValidationError[] {
   if ((getSchemaNullable(schema) === true && data === null) || (getSchemaRequired(schema) === false && data === undefined)) {
@@ -27,4 +30,12 @@ export function validateSchemaNumber(schema: SchemaNumber, data: any, path: stri
   }
 
   return errors;
+}
+
+export type SchemaNumber = {
+  max?: number;
+  min?: number;
+  nullable?: boolean;
+  required?: boolean;
+  type: 'number';
 }

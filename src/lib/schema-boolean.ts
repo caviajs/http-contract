@@ -1,7 +1,10 @@
-import { SchemaBoolean } from '../types/schema-boolean';
-import { ValidationError } from '../types/validation-error';
-import { getSchemaNullable } from './get-schema-nullable';
-import { getSchemaRequired } from './get-schema-required';
+import { ValidationError } from './validation-error';
+import { getSchemaNullable } from './utils/get-schema-nullable';
+import { getSchemaRequired } from './utils/get-schema-required';
+
+export function isSchemaBoolean(schema: any): schema is SchemaBoolean {
+  return schema?.type === 'boolean';
+}
 
 export function validateSchemaBoolean(schema: SchemaBoolean, data: any, path: string[] = []): ValidationError[] {
   if ((getSchemaNullable(schema) === true && data === null) || (getSchemaRequired(schema) === false && data === undefined)) {
@@ -19,4 +22,10 @@ export function validateSchemaBoolean(schema: SchemaBoolean, data: any, path: st
   }
 
   return errors;
+}
+
+export type SchemaBoolean = {
+  nullable?: boolean;
+  required?: boolean;
+  type: 'boolean';
 }

@@ -1,4 +1,4 @@
-import { SchemaBoolean, validateSchemaBoolean } from '../src';
+import { SchemaBoolean, validateSchemaBoolean } from '../../src';
 
 const path: string[] = ['foo', 'bar'];
 

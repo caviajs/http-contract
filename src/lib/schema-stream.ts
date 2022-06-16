@@ -1,8 +1,11 @@
-import { SchemaStream } from '../types/schema-stream';
-import { getSchemaNullable } from './get-schema-nullable';
-import { getSchemaRequired } from './get-schema-required';
-import { ValidationError } from '../types/validation-error';
+import { ValidationError } from './validation-error';
+import { getSchemaNullable } from './utils/get-schema-nullable';
+import { getSchemaRequired } from './utils/get-schema-required';
 import { Readable } from 'stream';
+
+export function isSchemaStream(schema: any): schema is SchemaStream {
+  return schema?.type === 'stream';
+}
 
 export function validateSchemaStream(schema: SchemaStream, data: any, path: string[] = []): ValidationError[] {
   if ((getSchemaNullable(schema) === true && data === null) || (getSchemaRequired(schema) === false && data === undefined)) {
@@ -23,4 +26,12 @@ export function validateSchemaStream(schema: SchemaStream, data: any, path: stri
   // minLength?
 
   return errors;
+}
+
+export type SchemaStream = {
+  maxLength?: number;
+  minLength?: number;
+  nullable?: boolean;
+  required?: boolean;
+  type: 'stream';
 }

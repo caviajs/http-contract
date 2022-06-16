@@ -1,7 +1,10 @@
-import { SchemaEnum } from '../types/schema-enum';
-import { ValidationError } from '../types/validation-error';
-import { getSchemaRequired } from './get-schema-required';
-import { getSchemaNullable } from './get-schema-nullable';
+import { ValidationError } from './validation-error';
+import { getSchemaNullable } from './utils/get-schema-nullable';
+import { getSchemaRequired } from './utils/get-schema-required';
+
+export function isSchemaEnum(schema: any): schema is SchemaEnum {
+  return schema?.type === 'enum';
+}
 
 export function validateSchemaEnum(schema: SchemaEnum, data: any, path: string[] = []): ValidationError[] {
   if ((getSchemaNullable(schema) === true && data === null) || (getSchemaRequired(schema) === false && data === undefined)) {
@@ -19,4 +22,11 @@ export function validateSchemaEnum(schema: SchemaEnum, data: any, path: string[]
   }
 
   return errors;
+}
+
+export type SchemaEnum = {
+  enum: (string | number)[];
+  nullable?: boolean;
+  required?: boolean;
+  type: 'enum';
 }

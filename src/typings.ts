@@ -1,11 +1,11 @@
-import { SchemaArray } from './lib/types/schema-array';
-import { SchemaBoolean } from './lib/types/schema-boolean';
-import { SchemaBuffer } from './lib/types/schema-buffer';
-import { SchemaEnum } from './lib/types/schema-enum';
-import { SchemaNumber } from './lib/types/schema-number';
-import { SchemaObject } from './lib/types/schema-object';
-import { SchemaStream } from './lib/types/schema-stream';
-import { SchemaString } from './lib/types/schema-string';
+import { SchemaArray } from './lib/schema-array';
+import { SchemaBoolean } from './lib/schema-boolean';
+import { SchemaBuffer } from './lib/schema-buffer';
+import { SchemaEnum } from './lib/schema-enum';
+import { SchemaNumber } from './lib/schema-number';
+import { SchemaObject } from './lib/schema-object';
+import { SchemaStream } from './lib/schema-stream';
+import { SchemaString } from './lib/schema-string';
 
 declare module '@caviajs/http-router' {
   export type BodySchema =
@@ -23,14 +23,17 @@ declare module '@caviajs/http-router' {
     | { contentSchema: SchemaString | SchemaStream; contentType: 'text/plain'; }
     | { contentSchema: SchemaBuffer | SchemaStream; contentType: 'video/mp4'; }
 
-  export type HeadersSchema =
-    | { [name: string]: SchemaString; }
+  export interface HeadersSchema {
+    [name: string]: SchemaString;
+  }
 
-  export type ParamsSchema =
-    | { [name: string]: SchemaString; }
+  export interface ParamsSchema {
+    [name: string]: SchemaString;
+  }
 
-  export type QuerySchema =
-    | { [name: string]: SchemaString; }
+  export interface QuerySchema {
+    [name: string]: SchemaString;
+  }
 
   export interface RouteMetadata {
     readonly contract?: {

@@ -1,7 +1,10 @@
-import { SchemaBuffer } from '../types/schema-buffer';
-import { ValidationError } from '../types/validation-error';
-import { getSchemaRequired } from './get-schema-required';
-import { getSchemaNullable } from './get-schema-nullable';
+import { ValidationError } from './validation-error';
+import { getSchemaNullable } from './utils/get-schema-nullable';
+import { getSchemaRequired } from './utils/get-schema-required';
+
+export function isSchemaBuffer(schema: any): schema is SchemaBuffer {
+  return schema?.type === 'buffer';
+}
 
 export function validateSchemaBuffer(schema: SchemaBuffer, data: any, path: string[] = []): ValidationError[] {
   if ((getSchemaNullable(schema) === true && data === null) || (getSchemaRequired(schema) === false && data === undefined)) {
@@ -27,4 +30,12 @@ export function validateSchemaBuffer(schema: SchemaBuffer, data: any, path: stri
   }
 
   return errors;
+}
+
+export type SchemaBuffer = {
+  maxLength?: number;
+  minLength?: number;
+  nullable?: boolean;
+  required?: boolean;
+  type: 'buffer';
 }

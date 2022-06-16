@@ -10,7 +10,7 @@
     "dist/**/*"
   ],
   "bin": {
-    "generate-contract": "dist/generate-contract.js"
+    "generate-contract": "dist/bin/generate-contract.js"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -39,10 +39,12 @@
     "@types/jest": "~27.4.1",
     "@types/node": "~18.0.0",
     "@types/yargs": "~17.0.9",
+    "@types/supertest": "~2.0.12",
     "husky": "~8.0.1",
     "jest": "~27.5.1",
     "rimraf": "~3.0.2",
     "rxjs": "~7.5.4",
+    "supertest": "~6.2.3",
     "ts-jest": "~27.1.4",
     "ts-node": "~10.8.1",
     "typescript": "~4.7.3"

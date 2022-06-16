@@ -1,19 +1,16 @@
-import { SchemaObject } from '../types/schema-object';
-import { ValidationError } from '../types/validation-error';
-import { getSchemaRequired } from './get-schema-required';
-import { getSchemaNullable } from './get-schema-nullable';
-import { getSchemaStrict } from './get-schema-strict';
-import { isSchemaArray } from './is-schema-array';
-import { isSchemaBoolean } from './is-schema-boolean';
-import { isSchemaEnum } from './is-schema-enum';
-import { isSchemaNumber } from './is-schema-number';
-import { isSchemaObject } from './is-schema-object';
-import { isSchemaString } from './is-schema-string';
-import { validateSchemaArray } from './validate-schema-array';
-import { validateSchemaBoolean } from './validate-schema-boolean';
-import { validateSchemaEnum } from './validate-schema-enum';
-import { validateSchemaNumber } from './validate-schema-number';
-import { validateSchemaString } from './validate-schema-string';
+import { isSchemaArray, SchemaArray, validateSchemaArray } from './schema-array';
+import { isSchemaBoolean, SchemaBoolean, validateSchemaBoolean } from './schema-boolean';
+import { isSchemaEnum, SchemaEnum, validateSchemaEnum } from './schema-enum';
+import { isSchemaNumber, SchemaNumber, validateSchemaNumber } from './schema-number';
+import { isSchemaString, SchemaString, validateSchemaString } from './schema-string';
+import { ValidationError } from './validation-error';
+import { getSchemaNullable } from './utils/get-schema-nullable';
+import { getSchemaRequired } from './utils/get-schema-required';
+import { getSchemaStrict } from './utils/get-schema-strict';
+
+export function isSchemaObject(schema: any): schema is SchemaObject {
+  return schema?.type === 'object';
+}
 
 export function validateSchemaObject(schema: SchemaObject, data: any, path: string[] = []): ValidationError[] {
   if ((getSchemaNullable(schema) === true && data === null) || (getSchemaRequired(schema) === false && data === undefined)) {
@@ -55,4 +52,20 @@ export function validateSchemaObject(schema: SchemaObject, data: any, path: stri
   }
 
   return errors;
+}
+
+export type SchemaObject = {
+  nullable?: boolean;
+  properties?: {
+    [name: string]:
+      | SchemaArray
+      | SchemaBoolean
+      | SchemaEnum
+      | SchemaNumber
+      | SchemaObject
+      | SchemaString;
+  };
+  required?: boolean;
+  strict?: boolean;
+  type: 'object';
 }

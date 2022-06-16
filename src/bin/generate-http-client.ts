@@ -1,18 +1,18 @@
 import { Specification } from '@caviajs/http-router';
 import { generateStructure } from './generate-structure';
 import { generateType } from './generate-type';
-import { pascalCase } from './lib/utils/pascal-case';
+import { pascalCase } from '../lib/utils/pascal-case';
 import { format } from 'prettier';
-import { camelCase } from './lib/utils/camel-case';
-import { getSchemaRequired } from './lib/utils/get-schema-required';
-import { isSchemaArray } from './lib/utils/is-schema-array';
-import { isSchemaBoolean } from './lib/utils/is-schema-boolean';
-import { isSchemaBuffer } from './lib/utils/is-schema-buffer';
-import { isSchemaEnum } from './lib/utils/is-schema-enum';
-import { isSchemaNumber } from './lib/utils/is-schema-number';
-import { isSchemaObject } from './lib/utils/is-schema-object';
-import { isSchemaStream } from './lib/utils/is-schema-stream';
-import { isSchemaString } from './lib/utils/is-schema-string';
+import { camelCase } from '../lib/utils/camel-case';
+import { getSchemaRequired } from '../lib/utils/get-schema-required';
+import { isSchemaArray } from '../lib/utils/is-schema-array';
+import { isSchemaBoolean } from '../lib/utils/is-schema-boolean';
+import { isSchemaBuffer } from '../lib/utils/is-schema-buffer';
+import { isSchemaEnum } from '../lib/utils/is-schema-enum';
+import { isSchemaNumber } from '../lib/utils/is-schema-number';
+import { isSchemaObject } from '../lib/utils/is-schema-object';
+import { isSchemaStream } from '../lib/utils/is-schema-stream';
+import { isSchemaString } from '../lib/utils/is-schema-string';
 
 export function generateHttpClient(name: string, specification: Specification): string {
   let content: string = '';

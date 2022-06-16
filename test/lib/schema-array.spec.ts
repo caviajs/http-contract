@@ -1,4 +1,4 @@
-import { SchemaArray, validateSchemaArray } from '../src';
+import { SchemaArray, validateSchemaArray } from '../../src';
 
 const path: string[] = ['foo', 'bar'];
 

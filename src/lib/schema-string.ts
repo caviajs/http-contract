@@ -1,7 +1,10 @@
-import { SchemaString } from '../types/schema-string';
-import { getSchemaNullable } from './get-schema-nullable';
-import { getSchemaRequired } from './get-schema-required';
-import { ValidationError } from '../types/validation-error';
+import { ValidationError } from './validation-error';
+import { getSchemaNullable } from './utils/get-schema-nullable';
+import { getSchemaRequired } from './utils/get-schema-required';
+
+export function isSchemaString(schema: any): schema is SchemaString {
+  return schema?.type === 'string';
+}
 
 export function validateSchemaString(schema: SchemaString, data: any, path: string[] = []): ValidationError[] {
   if ((getSchemaNullable(schema) === true && data === null) || (getSchemaRequired(schema) === false && data === undefined)) {
@@ -35,4 +38,13 @@ export function validateSchemaString(schema: SchemaString, data: any, path: stri
   }
 
   return errors;
+}
+
+export type SchemaString = {
+  expressions?: RegExp[];
+  maxLength?: number;
+  minLength?: number;
+  nullable?: boolean;
+  required?: boolean;
+  type: 'string';
 }

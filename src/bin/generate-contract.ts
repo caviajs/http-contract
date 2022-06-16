@@ -7,8 +7,8 @@ import { cyan } from 'colorette';
 import { hideBin } from 'yargs/helpers';
 import { HttpClient } from '@caviajs/http-client';
 import { Specification } from '@caviajs/http-router';
-import { pascalCase } from './lib/utils/pascal-case';
-import { kebabCase } from './lib/utils/kebab-case';
+import { pascalCase } from '../lib/utils/pascal-case';
+import { kebabCase } from '../lib/utils/kebab-case';
 import { generateHttpClient } from './generate-http-client';
 
 (async (): Promise<void> => {
@@ -28,6 +28,20 @@ import { generateHttpClient } from './generate-http-client';
   }
 
   const apiSpec: Specification = JSON.parse(apiSpecResponse.body.toString());
+
+  const names = new Set<string>();
+
+  for (const route of apiSpec.routes) {
+    const name: string | undefined = route.metadata?.contract?.name?.toLowerCase();
+
+    if (typeof name === 'string') {
+      if (names.has(name)) {
+        throw new Error(`Duplicated '${ name }' route name`);
+      }
+
+      names.add(name);
+    }
+  }
 
   const paths: string[] = (argv.output as string).replace(/(\/|\\)/g, sep).split(sep);
   const distDir: string = join(process.cwd(), ...paths.slice(0, -1));
