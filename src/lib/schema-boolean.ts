@@ -1,6 +1,6 @@
 import { ValidationError } from './validation-error';
-import { getSchemaNullable } from './utils/get-schema-nullable';
-import { getSchemaRequired } from './utils/get-schema-required';
+import { getSchemaNullable } from './get-schema-nullable';
+import { getSchemaRequired } from './get-schema-required';
 
 export function isSchemaBoolean(schema: any): schema is SchemaBoolean {
   return schema?.type === 'boolean';

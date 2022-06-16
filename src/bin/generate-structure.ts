@@ -1,6 +1,6 @@
-import { getSchemaRequired } from '../lib/utils/get-schema-required';
-import { getSchemaStrict } from '../lib/utils/get-schema-strict';
-import { getSchemaNullable } from '../lib/utils/get-schema-nullable';
+import { getSchemaRequired } from '../lib/get-schema-required';
+import { getSchemaStrict } from '../lib/get-schema-strict';
+import { getSchemaNullable } from '../lib/get-schema-nullable';
 import { isSchemaArray, SchemaArray } from '../lib/schema-array';
 import { isSchemaBoolean, SchemaBoolean } from '../lib/schema-boolean';
 import { isSchemaBuffer, SchemaBuffer } from '../lib/schema-buffer';

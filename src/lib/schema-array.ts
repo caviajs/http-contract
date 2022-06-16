@@ -4,8 +4,8 @@ import { isSchemaNumber, SchemaNumber, validateSchemaNumber } from './schema-num
 import { isSchemaObject, SchemaObject, validateSchemaObject } from './schema-object';
 import { isSchemaString, SchemaString, validateSchemaString } from './schema-string';
 import { ValidationError } from './validation-error';
-import { getSchemaNullable } from './utils/get-schema-nullable';
-import { getSchemaRequired } from './utils/get-schema-required';
+import { getSchemaNullable } from './get-schema-nullable';
+import { getSchemaRequired } from './get-schema-required';
 
 export function isSchemaArray(schema: any): schema is SchemaArray {
   return schema?.type === 'array';

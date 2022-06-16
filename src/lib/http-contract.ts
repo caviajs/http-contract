@@ -1,12 +1,12 @@
 import http from 'http';
 import { HttpException } from '@caviajs/http-exception';
 import { Interceptor, Next } from '@caviajs/http-router';
-import { getContentTypeMime } from './utils/get-content-type-mime';
+import { getContentTypeMime } from './get-content-type-mime';
 import * as url from 'url';
 import { ValidationError } from './validation-error';
 import iconv from 'iconv-lite';
 import { Observable } from 'rxjs';
-import { getContentTypeParameter } from './utils/get-content-type-parameter';
+import { getContentTypeParameter } from './get-content-type-parameter';
 import { isSchemaArray, validateSchemaArray } from './schema-array';
 import { isSchemaBoolean, validateSchemaBoolean } from './schema-boolean';
 import { isSchemaBuffer, validateSchemaBuffer } from './schema-buffer';

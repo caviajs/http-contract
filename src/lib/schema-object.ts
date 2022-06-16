@@ -4,9 +4,9 @@ import { isSchemaEnum, SchemaEnum, validateSchemaEnum } from './schema-enum';
 import { isSchemaNumber, SchemaNumber, validateSchemaNumber } from './schema-number';
 import { isSchemaString, SchemaString, validateSchemaString } from './schema-string';
 import { ValidationError } from './validation-error';
-import { getSchemaNullable } from './utils/get-schema-nullable';
-import { getSchemaRequired } from './utils/get-schema-required';
-import { getSchemaStrict } from './utils/get-schema-strict';
+import { getSchemaNullable } from './get-schema-nullable';
+import { getSchemaRequired } from './get-schema-required';
+import { getSchemaStrict } from './get-schema-strict';
 
 export function isSchemaObject(schema: any): schema is SchemaObject {
   return schema?.type === 'object';
