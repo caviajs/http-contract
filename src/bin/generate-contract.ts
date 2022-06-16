@@ -7,8 +7,8 @@ import { cyan } from 'colorette';
 import { hideBin } from 'yargs/helpers';
 import { HttpClient } from '@caviajs/http-client';
 import { Specification } from '@caviajs/http-router';
-import { pascalCase } from '../lib/utils/pascal-case';
-import { kebabCase } from '../lib/utils/kebab-case';
+import { pascalCase } from './pascal-case';
+import { kebabCase } from './kebab-case';
 import { generateHttpClient } from './generate-http-client';
 
 (async (): Promise<void> => {

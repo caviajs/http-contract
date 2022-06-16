@@ -1,5 +1,5 @@
 import { generateStructure } from './generate-structure';
-import { pascalCase } from '../lib/utils/pascal-case';
+import { pascalCase } from './pascal-case';
 import { SchemaArray } from '../lib/schema-array';
 import { SchemaBoolean } from '../lib/schema-boolean';
 import { SchemaBuffer } from '../lib/schema-buffer';

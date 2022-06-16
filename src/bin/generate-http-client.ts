@@ -1,9 +1,9 @@
 import { Specification } from '@caviajs/http-router';
 import { generateStructure } from './generate-structure';
 import { generateType } from './generate-type';
-import { pascalCase } from '../lib/utils/pascal-case';
+import { pascalCase } from './pascal-case';
 import { format } from 'prettier';
-import { camelCase } from '../lib/utils/camel-case';
+import { camelCase } from './camel-case';
 import { getSchemaRequired } from '../lib/utils/get-schema-required';
 import { isSchemaArray } from '../lib/schema-array';
 import { isSchemaBoolean } from '../lib/schema-boolean';
