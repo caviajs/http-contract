@@ -13,7 +13,7 @@ npm install @caviajs/http-contract @caviajs/http-client @caviajs/http-exception 
 
 <div align="center">
 <h4>Setup contract interceptor</h4>
-<div><span>The contract is responsible for decompression, parsing and validating the payload of the request.</span></div>
+<div><span>The contract is responsible for parsing, coercion and validation the payload of the request.</span></div>
 </div>
 
 ```typescript
