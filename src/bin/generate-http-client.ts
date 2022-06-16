@@ -5,14 +5,14 @@ import { pascalCase } from '../lib/utils/pascal-case';
 import { format } from 'prettier';
 import { camelCase } from '../lib/utils/camel-case';
 import { getSchemaRequired } from '../lib/utils/get-schema-required';
-import { isSchemaArray } from '../lib/utils/is-schema-array';
-import { isSchemaBoolean } from '../lib/utils/is-schema-boolean';
-import { isSchemaBuffer } from '../lib/utils/is-schema-buffer';
-import { isSchemaEnum } from '../lib/utils/is-schema-enum';
-import { isSchemaNumber } from '../lib/utils/is-schema-number';
-import { isSchemaObject } from '../lib/utils/is-schema-object';
-import { isSchemaStream } from '../lib/utils/is-schema-stream';
-import { isSchemaString } from '../lib/utils/is-schema-string';
+import { isSchemaArray } from '../lib/schema-array';
+import { isSchemaBoolean } from '../lib/schema-boolean';
+import { isSchemaBuffer } from '../lib/schema-buffer';
+import { isSchemaEnum } from '../lib/schema-enum';
+import { isSchemaNumber } from '../lib/schema-number';
+import { isSchemaObject } from '../lib/schema-object';
+import { isSchemaStream } from '../lib/schema-stream';
+import { isSchemaString } from '../lib/schema-string';
 
 export function generateHttpClient(name: string, specification: Specification): string {
   let content: string = '';
