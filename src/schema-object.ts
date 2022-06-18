@@ -1,3 +1,4 @@
+import { Readable } from 'stream';
 import { isSchemaArray, SchemaArray, validateSchemaArray } from './schema-array';
 import { isSchemaBoolean, SchemaBoolean, validateSchemaBoolean } from './schema-boolean';
 import { isSchemaEnum, SchemaEnum, validateSchemaEnum } from './schema-enum';
@@ -23,7 +24,7 @@ export function validateSchemaObject(schema: SchemaObject, data: any, path: stri
     errors.push({ message: `The value is required`, path: path.join('.') });
   }
 
-  if (typeof data === 'object' && data !== null && !Array.isArray(data) && !Buffer.isBuffer(data)) {
+  if (typeof data === 'object' && data !== null && !Array.isArray(data) && !Buffer.isBuffer(data) && !(data instanceof Readable)) {
     if (getSchemaStrict(schema) === true) {
       for (const propertyName of Object.keys(data)) {
         if ((schema.properties || {}).hasOwnProperty(propertyName) === false) {
