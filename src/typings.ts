@@ -25,7 +25,7 @@ declare module '@caviajs/http-router' {
     | { contentSchema: SchemaBuffer | SchemaStream; contentType: 'video/mp4'; }
 
   export interface HeadersSchema {
-    [name: string]: SchemaString;
+    [name: string]: SchemaEnum | SchemaString;
   }
 
   export interface ParamsSchema {
@@ -60,6 +60,7 @@ declare module 'http' {
     // todo: inferred by contract?
     body: any | undefined;
     // headers: http.IncomingHttpHeaders;
+    // @ts-ignore
     params: http.Params | { [name: string]: boolean | number; };
     query: { [name: string]: boolean | number | string; } | undefined;
   }
