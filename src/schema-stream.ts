@@ -22,15 +22,10 @@ export function validateSchemaStream(schema: SchemaStream, data: any, path: stri
     errors.push({ message: `The value should be stream`, path: path.join('.') });
   }
 
-  // maxLength?
-  // minLength?
-
   return errors;
 }
 
 export type SchemaStream = {
-  maxLength?: number;
-  minLength?: number;
   nullable?: boolean;
   required?: boolean;
   type: 'stream';
