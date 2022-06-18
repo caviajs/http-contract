@@ -1,14 +1,14 @@
-import { getSchemaRequired } from '../lib/get-schema-required';
-import { getSchemaStrict } from '../lib/get-schema-strict';
-import { getSchemaNullable } from '../lib/get-schema-nullable';
-import { isSchemaArray, SchemaArray } from '../lib/schema-array';
-import { isSchemaBoolean, SchemaBoolean } from '../lib/schema-boolean';
-import { isSchemaBuffer, SchemaBuffer } from '../lib/schema-buffer';
-import { isSchemaEnum, SchemaEnum } from '../lib/schema-enum';
-import { isSchemaNumber, SchemaNumber } from '../lib/schema-number';
-import { isSchemaObject, SchemaObject } from '../lib/schema-object';
-import { isSchemaStream, SchemaStream } from '../lib/schema-stream';
-import { isSchemaString, SchemaString } from '../lib/schema-string';
+import { getSchemaRequired } from './get-schema-required';
+import { getSchemaStrict } from './get-schema-strict';
+import { getSchemaNullable } from './get-schema-nullable';
+import { isSchemaArray, SchemaArray } from './schema-array';
+import { isSchemaBoolean, SchemaBoolean } from './schema-boolean';
+import { isSchemaBuffer, SchemaBuffer } from './schema-buffer';
+import { isSchemaEnum, SchemaEnum } from './schema-enum';
+import { isSchemaNumber, SchemaNumber } from './schema-number';
+import { isSchemaObject, SchemaObject } from './schema-object';
+import { isSchemaStream, SchemaStream } from './schema-stream';
+import { isSchemaString, SchemaString } from './schema-string';
 
 export function generateStructure(schema: SchemaArray | SchemaBoolean | SchemaBuffer | SchemaEnum | SchemaNumber | SchemaObject | SchemaStream | SchemaString): string {
   let content: string = '';

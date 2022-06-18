@@ -1,4 +1,4 @@
-import { SchemaBuffer, validateSchemaBuffer } from '../../src';
+import { SchemaBuffer, validateSchemaBuffer } from './index';
 
 const path: string[] = ['foo', 'bar'];
 

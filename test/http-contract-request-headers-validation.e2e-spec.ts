@@ -1,7 +1,7 @@
 import { HttpRouter, RouteMetadata } from '@caviajs/http-router';
 import http from 'http';
 import supertest from 'supertest';
-import { HttpContract } from '../../src';
+import { HttpContract } from '../src';
 
 function createServer(routeMetadata: RouteMetadata): http.Server {
   const httpRouter: HttpRouter = new HttpRouter();
@@ -12,7 +12,7 @@ function createServer(routeMetadata: RouteMetadata): http.Server {
       handler: () => undefined,
       metadata: routeMetadata,
       method: 'POST',
-      path: '/:id?',
+      path: '/',
     });
 
   return http.createServer((request, response) => {
@@ -24,8 +24,8 @@ it('should validate the expressions condition correctly', async () => {
   const httpServer = createServer({
     contract: {
       request: {
-        params: {
-          id: {
+        headers: {
+          'x-cavia': {
             expressions: [
               /^[A-Z]/,
               /[A-Z]$/,
@@ -40,7 +40,8 @@ it('should validate the expressions condition correctly', async () => {
   // valid
   {
     const response = await supertest(httpServer)
-      .post('/FoO');
+      .post('/')
+      .set('X-Cavia', 'FoO');
 
     expect(response.body).toEqual({});
     expect(response.headers['content-type']).toBeUndefined();
@@ -50,10 +51,11 @@ it('should validate the expressions condition correctly', async () => {
   // invalid
   {
     const response = await supertest(httpServer)
-      .post('/Foo');
+      .post('/')
+      .set('X-Cavia', 'Foo');
 
     expect(response.body).toEqual([
-      { message: 'The value should match a regular expression /[A-Z]$/', path: 'request.params.id' },
+      { message: 'The value should match a regular expression /[A-Z]$/', path: 'request.headers.x-cavia' },
     ]);
     expect(response.headers['content-type']).toBe('application/json; charset=utf-8');
     expect(response.statusCode).toEqual(400);
@@ -62,11 +64,12 @@ it('should validate the expressions condition correctly', async () => {
   // invalid
   {
     const response = await supertest(httpServer)
-      .post('/foo');
+      .post('/')
+      .set('X-Cavia', 'foo');
 
     expect(response.body).toEqual([
-      { message: 'The value should match a regular expression /^[A-Z]/', path: 'request.params.id' },
-      { message: 'The value should match a regular expression /[A-Z]$/', path: 'request.params.id' },
+      { message: 'The value should match a regular expression /^[A-Z]/', path: 'request.headers.x-cavia' },
+      { message: 'The value should match a regular expression /[A-Z]$/', path: 'request.headers.x-cavia' },
     ]);
     expect(response.headers['content-type']).toBe('application/json; charset=utf-8');
     expect(response.statusCode).toEqual(400);
@@ -77,8 +80,8 @@ it('should validate the maxLength condition correctly', async () => {
   const httpServer = createServer({
     contract: {
       request: {
-        params: {
-          id: {
+        headers: {
+          'x-cavia': {
             maxLength: 10,
             type: 'string',
           },
@@ -90,10 +93,11 @@ it('should validate the maxLength condition correctly', async () => {
   // longer than maxLength
   {
     const response = await supertest(httpServer)
-      .post('/HelloHelloHello');
+      .post('/')
+      .set('X-Cavia', 'HelloHelloHello');
 
     expect(response.body).toEqual([
-      { message: 'The value must be shorter than or equal to 10 characters', path: 'request.params.id' },
+      { message: 'The value must be shorter than or equal to 10 characters', path: 'request.headers.x-cavia' },
     ]);
     expect(response.headers['content-type']).toBe('application/json; charset=utf-8');
     expect(response.statusCode).toEqual(400);
@@ -102,7 +106,8 @@ it('should validate the maxLength condition correctly', async () => {
   // equal to maxLength
   {
     const response = await supertest(httpServer)
-      .post('/HelloHello');
+      .post('/')
+      .set('X-Cavia', 'HelloHello');
 
     expect(response.body).toEqual({});
     expect(response.headers['content-type']).toBeUndefined();
@@ -112,7 +117,8 @@ it('should validate the maxLength condition correctly', async () => {
   // shorter than maxLength
   {
     const response = await supertest(httpServer)
-      .post('/Hello');
+      .post('/')
+      .set('X-Cavia', 'Hello');
 
     expect(response.body).toEqual({});
     expect(response.headers['content-type']).toBeUndefined();
@@ -124,8 +130,8 @@ it('should validate the minLength condition correctly', async () => {
   const httpServer = createServer({
     contract: {
       request: {
-        params: {
-          id: {
+        headers: {
+          'x-cavia': {
             minLength: 10,
             type: 'string',
           },
@@ -137,7 +143,8 @@ it('should validate the minLength condition correctly', async () => {
   // longer than minLength
   {
     const response = await supertest(httpServer)
-      .post('/HelloHelloHello');
+      .post('/')
+      .set('X-Cavia', 'HelloHelloHello');
 
     expect(response.body).toEqual({});
     expect(response.headers['content-type']).toBeUndefined();
@@ -147,7 +154,8 @@ it('should validate the minLength condition correctly', async () => {
   // equal to minLength
   {
     const response = await supertest(httpServer)
-      .post('/HelloHello');
+      .post('/')
+      .set('X-Cavia', 'HelloHello');
 
     expect(response.body).toEqual({});
     expect(response.headers['content-type']).toBeUndefined();
@@ -157,10 +165,11 @@ it('should validate the minLength condition correctly', async () => {
   // shorter than minLength
   {
     const response = await supertest(httpServer)
-      .post('/Hello');
+      .post('/')
+      .set('X-Cavia', 'Hello');
 
     expect(response.body).toEqual([
-      { message: 'The value must be longer than or equal to 10 characters', path: 'request.params.id' },
+      { message: 'The value must be longer than or equal to 10 characters', path: 'request.headers.x-cavia' },
     ]);
     expect(response.headers['content-type']).toBe('application/json; charset=utf-8');
     expect(response.statusCode).toEqual(400);
@@ -191,8 +200,8 @@ it('should validate the required condition correctly', async () => {
     const httpServer = createServer({
       contract: {
         request: {
-          params: {
-            id: {
+          headers: {
+            'x-cavia': {
               type: 'string',
             },
           },
@@ -213,8 +222,8 @@ it('should validate the required condition correctly', async () => {
     const httpServer = createServer({
       contract: {
         request: {
-          params: {
-            id: {
+          headers: {
+            'x-cavia': {
               required: false,
               type: 'string',
             },
@@ -236,8 +245,8 @@ it('should validate the required condition correctly', async () => {
     const httpServer = createServer({
       contract: {
         request: {
-          params: {
-            id: {
+          headers: {
+            'x-cavia': {
               required: true,
               type: 'string',
             },
@@ -250,8 +259,8 @@ it('should validate the required condition correctly', async () => {
       .post('/');
 
     expect(response.body).toEqual([
-      { message: 'The value is required', path: 'request.params.id' },
-      { message: 'The value should be string', path: 'request.params.id' },
+      { message: 'The value is required', path: 'request.headers.x-cavia' },
+      { message: 'The value should be string', path: 'request.headers.x-cavia' },
     ]);
     expect(response.headers['content-type']).toBe('application/json; charset=utf-8');
     expect(response.statusCode).toEqual(400);

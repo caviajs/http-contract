@@ -10,7 +10,7 @@
     "dist/**/*"
   ],
   "bin": {
-    "generate-contract": "dist/bin/generate-contract.js"
+    "generate-contract": "dist/generate-contract.js"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -62,10 +62,11 @@
       "ts"
     ],
     "roots": [
+      "src",
       "test"
     ],
     "testEnvironment": "node",
-    "testRegex": ".spec.ts$",
+    "testRegex": ".(e2e-)?spec.ts$",
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     }

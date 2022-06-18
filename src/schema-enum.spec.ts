@@ -1,4 +1,4 @@
-import { SchemaEnum, validateSchemaEnum } from '../../src';
+import { SchemaEnum, validateSchemaEnum } from './index';
 
 const path: string[] = ['foo', 'bar'];
 

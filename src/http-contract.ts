@@ -13,9 +13,11 @@ import { isSchemaBuffer, validateSchemaBuffer } from './schema-buffer';
 import { isSchemaEnum, validateSchemaEnum } from './schema-enum';
 import { isSchemaNumber, validateSchemaNumber } from './schema-number';
 import { isSchemaObject, validateSchemaObject } from './schema-object';
-import { isSchemaStream } from './schema-stream';
+import { isSchemaStream, validateSchemaStream } from './schema-stream';
 import { isSchemaString, validateSchemaString } from './schema-string';
 import { Readable } from 'stream';
+import { castToBoolean } from './cast-to-boolean';
+import { castToNumber } from './cast-to-number';
 
 export class HttpContract {
   public static setup(): Interceptor {
@@ -71,7 +73,7 @@ export class HttpContract {
         } else if (isSchemaStream(contentSchema)) {
           request.body = await this.parseRequestTo(request, 'stream');
 
-          // ...
+          errors.push(...validateSchemaStream(contentSchema, request.body, ['request', 'body']));
         } else if (isSchemaString(contentSchema)) {
           request.body = await this.parseRequestTo(request, 'string');
 
@@ -91,7 +93,21 @@ export class HttpContract {
       /** request.params **/
       if (request.metadata?.contract?.request?.params) {
         for (const [name, schema] of Object.entries(request.metadata.contract.request.params)) {
-          errors.push(...validateSchemaString(schema, request.params[name], ['request', 'params', name]));
+          if (isSchemaBoolean(schema)) {
+            request.params[name] = castToBoolean(request.query[name]);
+
+            errors.push(...validateSchemaBoolean(schema, request.params[name], ['request', 'params', name]));
+          } else if (isSchemaEnum(schema)) {
+            request.params[name] = castToNumber(request.query[name]);
+
+            errors.push(...validateSchemaEnum(schema, request.params[name], ['request', 'params', name]));
+          } else if (isSchemaNumber(schema)) {
+            request.params[name] = castToNumber(request.query[name]);
+
+            errors.push(...validateSchemaNumber(schema, request.params[name], ['request', 'params', name]));
+          } else if (isSchemaString(schema)) {
+            errors.push(...validateSchemaString(schema, request.params[name], ['request', 'params', name]));
+          }
         }
       }
 
@@ -100,7 +116,21 @@ export class HttpContract {
 
       if (request.metadata?.contract?.request?.query) {
         for (const [name, schema] of Object.entries(request.metadata.contract.request.query)) {
-          errors.push(...validateSchemaString(schema, request.query[name], ['request', 'query', name]));
+          if (isSchemaBoolean(schema)) {
+            request.query[name] = castToBoolean(request.query[name]);
+
+            errors.push(...validateSchemaBoolean(schema, request.query[name], ['request', 'query', name]));
+          } else if (isSchemaEnum(schema)) {
+            request.query[name] = castToNumber(request.query[name]);
+
+            errors.push(...validateSchemaEnum(schema, request.query[name], ['request', 'query', name]));
+          } else if (isSchemaNumber(schema)) {
+            request.query[name] = castToNumber(request.query[name]);
+
+            errors.push(...validateSchemaNumber(schema, request.query[name], ['request', 'query', name]));
+          } else if (isSchemaString(schema)) {
+            errors.push(...validateSchemaString(schema, request.query[name], ['request', 'query', name]));
+          }
         }
       }
 
@@ -116,11 +146,11 @@ export class HttpContract {
     };
   }
 
-  protected static async parseRequestTo(request: http.IncomingMessage, outputType: 'stream'): Promise<Readable>;
-  protected static async parseRequestTo(request: http.IncomingMessage, outputType: 'buffer'): Promise<Buffer>;
-  protected static async parseRequestTo(request: http.IncomingMessage, outputType: 'json'): Promise<any>;
-  protected static async parseRequestTo(request: http.IncomingMessage, outputType: 'string'): Promise<string>;
-  protected static async parseRequestTo(request: http.IncomingMessage, outputType: string): Promise<any> {
+  protected static async parseRequestTo(request: http.IncomingMessage, outputType: 'stream'): Promise<Readable | undefined>;
+  protected static async parseRequestTo(request: http.IncomingMessage, outputType: 'buffer'): Promise<Buffer | undefined>;
+  protected static async parseRequestTo(request: http.IncomingMessage, outputType: 'json'): Promise<any | undefined>;
+  protected static async parseRequestTo(request: http.IncomingMessage, outputType: 'string'): Promise<string | undefined>;
+  protected static async parseRequestTo(request: http.IncomingMessage, outputType: string): Promise<unknown> {
     return new Promise((resolve, reject) => {
       if (request.headers['transfer-encoding'] === undefined && isNaN(parseInt(request.headers['content-length'], 10))) {
         return resolve(undefined);

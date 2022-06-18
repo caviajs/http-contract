@@ -4,15 +4,15 @@ import { generateType } from './generate-type';
 import { pascalCase } from './pascal-case';
 import { format } from 'prettier';
 import { camelCase } from './camel-case';
-import { getSchemaRequired } from '../lib/get-schema-required';
-import { isSchemaArray } from '../lib/schema-array';
-import { isSchemaBoolean } from '../lib/schema-boolean';
-import { isSchemaBuffer } from '../lib/schema-buffer';
-import { isSchemaEnum } from '../lib/schema-enum';
-import { isSchemaNumber } from '../lib/schema-number';
-import { isSchemaObject } from '../lib/schema-object';
-import { isSchemaStream } from '../lib/schema-stream';
-import { isSchemaString } from '../lib/schema-string';
+import { getSchemaRequired } from './get-schema-required';
+import { isSchemaArray } from './schema-array';
+import { isSchemaBoolean } from './schema-boolean';
+import { isSchemaBuffer } from './schema-buffer';
+import { isSchemaEnum } from './schema-enum';
+import { isSchemaNumber } from './schema-number';
+import { isSchemaObject } from './schema-object';
+import { isSchemaStream } from './schema-stream';
+import { isSchemaString } from './schema-string';
 
 export function generateHttpClient(name: string, specification: Specification): string {
   let content: string = '';
