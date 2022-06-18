@@ -73,8 +73,6 @@ it('should convert boolean string to a boolean ("false")', async () => {
   const res = await supertest(httpServer)
     .post('/false');
 
-  console.log(res.body);
-
   expect(included).toEqual(false);
   expect(typeof included).toBe('boolean');
 });
