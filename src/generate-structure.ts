@@ -25,13 +25,7 @@ export function generateStructure(schema: SchemaArray | SchemaBoolean | SchemaBu
         content += '|';
       }
 
-      if (typeof value === 'string') {
-        content += `'${ value }'`;
-      } else if (typeof value === 'number') {
-        content += `${ value }`;
-      } else {
-        content += `unknown`;
-      }
+      content += `'${ value }'`;
     });
   } else if (isSchemaNumber(schema)) {
     content += 'number';

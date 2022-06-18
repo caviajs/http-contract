@@ -25,7 +25,7 @@ export function validateSchemaEnum(schema: SchemaEnum, data: any, path: string[]
 }
 
 export type SchemaEnum = {
-  enum: (string | number)[];
+  enum: string[];
   nullable?: boolean;
   required?: boolean;
   type: 'enum';

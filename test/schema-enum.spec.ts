@@ -5,7 +5,7 @@ const path: string[] = ['foo', 'bar'];
 describe('SchemaEnum', () => {
   it('should validate the enum condition correctly', () => {
     const schema: SchemaEnum = {
-      enum: ['Hello', 1245, 'World'],
+      enum: ['Hello', 'World'],
       nullable: false,
       required: true,
       type: 'enum',
@@ -15,18 +15,15 @@ describe('SchemaEnum', () => {
     expect(validateSchemaEnum(schema, 'Hello')).toEqual([]);
     expect(validateSchemaEnum(schema, 'Hello', path)).toEqual([]);
 
-    expect(validateSchemaEnum(schema, 1245)).toEqual([]);
-    expect(validateSchemaEnum(schema, 1245, path)).toEqual([]);
-
     expect(validateSchemaEnum(schema, 'World')).toEqual([]);
     expect(validateSchemaEnum(schema, 'World', path)).toEqual([]);
 
     // invalid
     expect(validateSchemaEnum(schema, 'Foo')).toEqual([
-      { message: 'The value must be one of the following values: Hello, 1245, World', path: '' },
+      { message: 'The value must be one of the following values: Hello, World', path: '' },
     ]);
     expect(validateSchemaEnum(schema, 'Foo', path)).toEqual([
-      { message: 'The value must be one of the following values: Hello, 1245, World', path: 'foo.bar' },
+      { message: 'The value must be one of the following values: Hello, World', path: 'foo.bar' },
     ]);
   });
 
