@@ -1,7 +1,7 @@
 import { HttpRouter } from '@caviajs/http-router';
-import { HttpContract } from '../src';
 import http from 'http';
 import supertest from 'supertest';
+import { HttpContract } from '../src';
 
 it('should convert number string to number', async () => {
   let age: any;
