@@ -1,11 +1,13 @@
-import http from 'http';
 import { HttpException } from '@caviajs/http-exception';
 import { Interceptor, Next } from '@caviajs/http-router';
-import { getContentTypeMime } from './get-content-type-mime';
-import * as url from 'url';
-import { ValidationError } from './validation-error';
+import http from 'http';
 import iconv from 'iconv-lite';
 import { Observable } from 'rxjs';
+import { Readable } from 'stream';
+import * as url from 'url';
+import { castToBoolean } from './cast-to-boolean';
+import { castToNumber } from './cast-to-number';
+import { getContentTypeMime } from './get-content-type-mime';
 import { getContentTypeParameter } from './get-content-type-parameter';
 import { isSchemaArray, validateSchemaArray } from './schema-array';
 import { isSchemaBoolean, validateSchemaBoolean } from './schema-boolean';
@@ -15,9 +17,7 @@ import { isSchemaNumber, validateSchemaNumber } from './schema-number';
 import { isSchemaObject, validateSchemaObject } from './schema-object';
 import { isSchemaStream, validateSchemaStream } from './schema-stream';
 import { isSchemaString, validateSchemaString } from './schema-string';
-import { Readable } from 'stream';
-import { castToBoolean } from './cast-to-boolean';
-import { castToNumber } from './cast-to-number';
+import { ValidationError } from './validation-error';
 
 export class HttpContract {
   public static setup(): Interceptor {
@@ -94,15 +94,15 @@ export class HttpContract {
       if (request.metadata?.contract?.request?.params) {
         for (const [name, schema] of Object.entries(request.metadata.contract.request.params)) {
           if (isSchemaBoolean(schema)) {
-            request.params[name] = castToBoolean(request.query[name]);
+            request.params[name] = castToBoolean(request.params[name]);
 
             errors.push(...validateSchemaBoolean(schema, request.params[name], ['request', 'params', name]));
           } else if (isSchemaEnum(schema)) {
-            request.params[name] = castToNumber(request.query[name]);
+            request.params[name] = castToNumber(request.params[name]);
 
             errors.push(...validateSchemaEnum(schema, request.params[name], ['request', 'params', name]));
           } else if (isSchemaNumber(schema)) {
-            request.params[name] = castToNumber(request.query[name]);
+            request.params[name] = castToNumber(request.params[name]);
 
             errors.push(...validateSchemaNumber(schema, request.params[name], ['request', 'params', name]));
           } else if (isSchemaString(schema)) {
