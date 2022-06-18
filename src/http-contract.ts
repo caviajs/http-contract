@@ -5,8 +5,8 @@ import iconv from 'iconv-lite';
 import { Observable } from 'rxjs';
 import { Readable } from 'stream';
 import * as url from 'url';
-import { castToBoolean } from './cast-to-boolean';
-import { castToNumber } from './cast-to-number';
+import { convertToBoolean } from './convert-to-boolean';
+import { convertToNumber } from './convert-to-number';
 import { getContentTypeMime } from './get-content-type-mime';
 import { getContentTypeParameter } from './get-content-type-parameter';
 import { isSchemaArray, validateSchemaArray } from './schema-array';
@@ -86,7 +86,11 @@ export class HttpContract {
       /** request.headers **/
       if (request.metadata?.contract?.request?.headers) {
         for (const [name, schema] of Object.entries(request.metadata.contract.request.headers)) {
-          errors.push(...validateSchemaString(schema, request.headers[name], ['request', 'headers', name]));
+          if (isSchemaEnum(schema)) {
+            errors.push(...validateSchemaEnum(schema, request.headers[name], ['request', 'headers', name]));
+          } else if (isSchemaString(schema)) {
+            errors.push(...validateSchemaString(schema, request.headers[name], ['request', 'headers', name]));
+          }
         }
       }
 
@@ -94,15 +98,13 @@ export class HttpContract {
       if (request.metadata?.contract?.request?.params) {
         for (const [name, schema] of Object.entries(request.metadata.contract.request.params)) {
           if (isSchemaBoolean(schema)) {
-            request.params[name] = castToBoolean(request.params[name]);
+            request.params[name] = convertToBoolean(request.params[name]);
 
             errors.push(...validateSchemaBoolean(schema, request.params[name], ['request', 'params', name]));
           } else if (isSchemaEnum(schema)) {
-            request.params[name] = castToNumber(request.params[name]);
-
             errors.push(...validateSchemaEnum(schema, request.params[name], ['request', 'params', name]));
           } else if (isSchemaNumber(schema)) {
-            request.params[name] = castToNumber(request.params[name]);
+            request.params[name] = convertToNumber(request.params[name]);
 
             errors.push(...validateSchemaNumber(schema, request.params[name], ['request', 'params', name]));
           } else if (isSchemaString(schema)) {
@@ -117,15 +119,13 @@ export class HttpContract {
       if (request.metadata?.contract?.request?.query) {
         for (const [name, schema] of Object.entries(request.metadata.contract.request.query)) {
           if (isSchemaBoolean(schema)) {
-            request.query[name] = castToBoolean(request.query[name]);
+            request.query[name] = convertToBoolean(request.query[name]);
 
             errors.push(...validateSchemaBoolean(schema, request.query[name], ['request', 'query', name]));
           } else if (isSchemaEnum(schema)) {
-            request.query[name] = castToNumber(request.query[name]);
-
             errors.push(...validateSchemaEnum(schema, request.query[name], ['request', 'query', name]));
           } else if (isSchemaNumber(schema)) {
-            request.query[name] = castToNumber(request.query[name]);
+            request.query[name] = convertToNumber(request.query[name]);
 
             errors.push(...validateSchemaNumber(schema, request.query[name], ['request', 'query', name]));
           } else if (isSchemaString(schema)) {
@@ -134,13 +134,13 @@ export class HttpContract {
         }
       }
 
-      /** response **/
-      // request.metadata.contract.responses[200].body;
-      // request.metadata.contract.responses[200].headers;
-
       if (errors.length > 0) {
         throw new HttpException(400, errors);
       }
+
+      /** response **/
+      // request.metadata.contract.responses[200].body;
+      // request.metadata.contract.responses[200].headers;
 
       return next.handle();
     };
