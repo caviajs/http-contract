@@ -1,3 +1,4 @@
+import { Readable } from 'stream';
 import { SchemaBuffer, validateSchemaBuffer } from '../src';
 
 const path: string[] = ['foo', 'bar'];
@@ -133,6 +134,14 @@ describe('SchemaBuffer', () => {
     // buffer
     expect(validateSchemaBuffer(schema, Buffer.from('Hello World'))).toEqual([]);
     expect(validateSchemaBuffer(schema, Buffer.from('Hello World'), path)).toEqual([]);
+
+    // stream
+    expect(validateSchemaBuffer(schema, new Readable())).toEqual([
+      { message: 'The value should be buffer', path: '' },
+    ]);
+    expect(validateSchemaBuffer(schema, new Readable(), path)).toEqual([
+      { message: 'The value should be buffer', path: 'foo.bar' },
+    ]);
 
     // undefined
     expect(validateSchemaBuffer(schema, undefined)).toEqual([

@@ -1,3 +1,4 @@
+import { Readable } from 'stream';
 import { SchemaString, validateSchemaString } from '../src';
 
 const path: string[] = ['foo', 'bar'];
@@ -162,6 +163,14 @@ describe('SchemaString', () => {
       { message: 'The value should be string', path: '' },
     ]);
     expect(validateSchemaString(schema, Buffer.from('Hello World'), path)).toEqual([
+      { message: 'The value should be string', path: 'foo.bar' },
+    ]);
+
+    // stream
+    expect(validateSchemaString(schema, new Readable())).toEqual([
+      { message: 'The value should be string', path: '' },
+    ]);
+    expect(validateSchemaString(schema, new Readable(), path)).toEqual([
       { message: 'The value should be string', path: 'foo.bar' },
     ]);
 

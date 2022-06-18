@@ -1,3 +1,4 @@
+import { Readable } from 'stream';
 import { SchemaObject, validateSchemaObject } from '../src';
 
 const path: string[] = ['foo', 'bar'];
@@ -250,6 +251,14 @@ describe('SchemaObject', () => {
       { message: 'The value should be object', path: '' },
     ]);
     expect(validateSchemaObject(schema, Buffer.from('Hello World'), path)).toEqual([
+      { message: 'The value should be object', path: 'foo.bar' },
+    ]);
+
+    // stream
+    expect(validateSchemaObject(schema, new Readable())).toEqual([
+      { message: 'The value should be object', path: '' },
+    ]);
+    expect(validateSchemaObject(schema, new Readable(), path)).toEqual([
       { message: 'The value should be object', path: 'foo.bar' },
     ]);
 

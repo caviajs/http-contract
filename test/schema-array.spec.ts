@@ -1,3 +1,4 @@
+import { Readable } from 'stream';
 import { SchemaArray, validateSchemaArray } from '../src';
 
 const path: string[] = ['foo', 'bar'];
@@ -156,6 +157,14 @@ describe('SchemaArray', () => {
       { message: 'The value should be array', path: '' },
     ]);
     expect(validateSchemaArray(schema, Buffer.from('Hello World'), path)).toEqual([
+      { message: 'The value should be array', path: 'foo.bar' },
+    ]);
+
+    // stream
+    expect(validateSchemaArray(schema, new Readable())).toEqual([
+      { message: 'The value should be array', path: '' },
+    ]);
+    expect(validateSchemaArray(schema, new Readable(), path)).toEqual([
       { message: 'The value should be array', path: 'foo.bar' },
     ]);
 

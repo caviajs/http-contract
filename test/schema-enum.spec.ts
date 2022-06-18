@@ -1,3 +1,4 @@
+import { Readable } from 'stream';
 import { SchemaEnum, validateSchemaEnum } from '../src';
 
 const path: string[] = ['foo', 'bar'];
@@ -114,6 +115,14 @@ describe('SchemaEnum', () => {
       { message: 'The value must be one of the following values: Hello, World', path: '' },
     ]);
     expect(validateSchemaEnum(schema, Buffer.from('Hello World'), path)).toEqual([
+      { message: 'The value must be one of the following values: Hello, World', path: 'foo.bar' },
+    ]);
+
+    // stream
+    expect(validateSchemaEnum(schema, new Readable())).toEqual([
+      { message: 'The value must be one of the following values: Hello, World', path: '' },
+    ]);
+    expect(validateSchemaEnum(schema, new Readable(), path)).toEqual([
       { message: 'The value must be one of the following values: Hello, World', path: 'foo.bar' },
     ]);
 

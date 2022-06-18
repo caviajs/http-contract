@@ -1,3 +1,4 @@
+import { Readable } from 'stream';
 import { SchemaBoolean, validateSchemaBoolean } from '../src';
 
 const path: string[] = ['foo', 'bar'];
@@ -81,6 +82,14 @@ describe('SchemaBoolean', () => {
       { message: 'The value should be boolean', path: '' },
     ]);
     expect(validateSchemaBoolean(schema, Buffer.from('Hello World'), path)).toEqual([
+      { message: 'The value should be boolean', path: 'foo.bar' },
+    ]);
+
+    // stream
+    expect(validateSchemaBoolean(schema, new Readable())).toEqual([
+      { message: 'The value should be boolean', path: '' },
+    ]);
+    expect(validateSchemaBoolean(schema, new Readable(), path)).toEqual([
       { message: 'The value should be boolean', path: 'foo.bar' },
     ]);
 
