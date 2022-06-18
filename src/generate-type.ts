@@ -1,5 +1,4 @@
 import { generateStructure } from './generate-structure';
-import { pascalCase } from './pascal-case';
 import { SchemaArray } from './schema-array';
 import { SchemaBoolean } from './schema-boolean';
 import { SchemaBuffer } from './schema-buffer';
@@ -13,5 +12,5 @@ export function generateType(
   name: string,
   schema: SchemaArray | SchemaBoolean | SchemaBuffer | SchemaEnum | SchemaNumber | SchemaObject | SchemaStream | SchemaString,
 ): string {
-  return `export type ${ pascalCase(name) } = ${ generateStructure(schema) };`;
+  return `export type ${ name } = ${ generateStructure(schema) };`;
 }
