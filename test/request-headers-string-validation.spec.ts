@@ -176,24 +176,6 @@ it('should validate the minLength condition correctly', async () => {
   }
 });
 
-it('should validate the nullable condition correctly', async () => {
-  // nullable: false (default)
-  {
-
-  }
-
-  // nullable: false
-  {
-
-  }
-
-  // nullable: true
-  {
-
-  }
-
-});
-
 it('should validate the required condition correctly', async () => {
   // required: false (default)
   {
@@ -265,7 +247,4 @@ it('should validate the required condition correctly', async () => {
     expect(response.headers['content-type']).toBe('application/json; charset=utf-8');
     expect(response.statusCode).toEqual(400);
   }
-});
-
-it('should validate the type condition correctly', () => {
 });
