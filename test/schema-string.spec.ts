@@ -1,4 +1,4 @@
-import { SchemaString, validateSchemaString } from './index';
+import { SchemaString, validateSchemaString } from '../src';
 
 const path: string[] = ['foo', 'bar'];
 

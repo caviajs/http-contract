@@ -1,4 +1,4 @@
-import { SchemaObject, validateSchemaObject } from './index';
+import { SchemaObject, validateSchemaObject } from '../src';
 
 const path: string[] = ['foo', 'bar'];
 
