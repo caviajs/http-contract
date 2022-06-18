@@ -13,7 +13,7 @@ npm install @caviajs/http-contract @caviajs/http-client @caviajs/http-exception 
 
 <div align="center">
 <h4>Setup contract interceptor</h4>
-<div><span>The contract is responsible for parsing, coercion and validation the payload of the request.</span></div>
+<div><span>The contract is responsible for parsing, convert and validation the payload of the request.</span></div>
 </div>
 
 ```typescript
@@ -47,7 +47,7 @@ httpRouter
 ```
 
 <div align="center">
-<h4>Setup contract schema in routes</h4>
+<h4>Setup contract metadata in routes</h4>
 </div>
 
 ```typescript
@@ -63,28 +63,8 @@ httpRouter
       // ...
     },
     metadata: {
-      name: 'createGuineaPig',
-      request: {
-        body: {
-          contentSchema: {
-            type: 'string',
-          },
-          contentType: 'text/plain',
-        },
-        headers: { /* ... */ },
-        params: { /* ... */ },
-        query: { /* ... */ },
-      },
-      responses: {
-        201: {
-          body: {
-            contentSchema: {
-              type: 'string',
-            },
-            contentType: 'text/plain',
-          },
-          headers: { /* ... */ },
-        },
+      contract: {
+        // ...
       },
     },
     method: 'POST',
@@ -92,6 +72,96 @@ httpRouter
   });
 // ...
 ```
+
+#### metadata.contract.name
+
+Name is the **unique** name of the router from which the CLI generates the HTTP client.
+
+```typescript
+httpRouter
+  .route({
+    // ...
+    metadata: {
+      contract: {
+        name: 'createGuineaPig',
+      },
+    },
+  });
+```
+
+#### metadata.contract.request.body
+
+...
+
+#### metadata.contract.request.headers
+
+Type: `{ [name: string]: SchemaEnum | SchemaString }`
+
+```typescript
+httpRouter
+  .route({
+    // ...
+    metadata: {
+      contract: {
+        request: {
+          headers: {
+            'x-example': {
+              type: 'string'
+            },
+          }
+        },
+      },
+    },
+  });
+```
+
+#### metadata.contract.request.params
+
+Type: `{ [name: string]: SchemaBoolean | SchemaEnum | SchemaNumber | SchemaString }`
+
+```typescript
+httpRouter
+  .route({
+    // ...
+    metadata: {
+      contract: {
+        request: {
+          params: {
+            example1: {
+              type: 'boolean'
+            },
+            example2: {
+              enum: ['foo', 'bar'],
+              type: 'enum'
+            },
+            example3: {
+              type: 'number'
+            },
+            example4: {
+              type: 'string'
+            },
+          }
+        },
+      },
+    },
+  });
+```
+
+Enforces the value to be a valid string representation of a boolean. Following values are considered as valid booleans
+and will be converted to true or false.
+
+* 'true' converts to Boolean(true)
+* 'false' converts to Boolean(false)
+
+#### metadata.contract.request.query
+
+Type: `{ [name: string]: SchemaBoolean | SchemaEnum | SchemaNumber | SchemaString }`
+
+...
+
+#### metadata.contract.responses[status].body
+
+#### metadata.contract.responses[status].headers
 
 <div align="center">
 <h4>Generate a contract based on specification</h4>
