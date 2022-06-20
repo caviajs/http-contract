@@ -1,6 +1,7 @@
 import { getSchemaStrict } from '../src/get-schema-strict';
 
 it('should return false as default value', () => {
+  expect(getSchemaStrict(undefined)).toEqual(false);
   expect(getSchemaStrict({})).toEqual(false);
 });
 
