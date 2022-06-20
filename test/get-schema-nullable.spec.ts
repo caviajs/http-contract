@@ -1,6 +1,7 @@
 import { getSchemaNullable } from '../src/get-schema-nullable';
 
 it('should return false as default value', () => {
+  expect(getSchemaNullable(undefined)).toEqual(false);
   expect(getSchemaNullable({})).toEqual(false);
 });
 
