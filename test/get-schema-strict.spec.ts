@@ -1,0 +1,10 @@
+import { getSchemaStrict } from '../src/get-schema-strict';
+
+it('should return false as default value', () => {
+  expect(getSchemaStrict({})).toEqual(false);
+});
+
+it('should return value from property', () => {
+  expect(getSchemaStrict({ strict: false })).toEqual(false);
+  expect(getSchemaStrict({ strict: true })).toEqual(true);
+});
