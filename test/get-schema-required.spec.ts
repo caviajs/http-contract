@@ -1,6 +1,7 @@
 import { getSchemaRequired } from '../src/get-schema-required';
 
 it('should return false as default value', () => {
+  expect(getSchemaRequired(undefined)).toEqual(false);
   expect(getSchemaRequired({})).toEqual(false);
 });
 
