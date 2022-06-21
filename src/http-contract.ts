@@ -47,35 +47,35 @@ export class HttpContract {
         }
 
         if (isSchemaArray(contentSchema)) {
-          request.body = await this.parseRequestTo(request, 'json');
+          request.body = await this.convertRequestBodyTo(request, 'json');
 
           errors.push(...validateSchemaArray(contentSchema, request.body, ['request', 'body']));
         } else if (isSchemaBoolean(contentSchema)) {
-          request.body = await this.parseRequestTo(request, 'json');
+          request.body = await this.convertRequestBodyTo(request, 'json');
 
           errors.push(...validateSchemaBoolean(contentSchema, request.body, ['request', 'body']));
         } else if (isSchemaBuffer(contentSchema)) {
-          request.body = await this.parseRequestTo(request, 'buffer');
+          request.body = await this.convertRequestBodyTo(request, 'buffer');
 
           errors.push(...validateSchemaBuffer(contentSchema, request.body, ['request', 'body']));
         } else if (isSchemaEnum(contentSchema)) {
-          request.body = await this.parseRequestTo(request, 'json');
+          request.body = await this.convertRequestBodyTo(request, 'json');
 
           errors.push(...validateSchemaEnum(contentSchema, request.body, ['request', 'body']));
         } else if (isSchemaNumber(contentSchema)) {
-          request.body = await this.parseRequestTo(request, 'json');
+          request.body = await this.convertRequestBodyTo(request, 'json');
 
           errors.push(...validateSchemaNumber(contentSchema, request.body, ['request', 'body']));
         } else if (isSchemaObject(contentSchema)) {
-          request.body = await this.parseRequestTo(request, 'json');
+          request.body = await this.convertRequestBodyTo(request, 'json');
 
           errors.push(...validateSchemaObject(contentSchema, request.body, ['request', 'body']));
         } else if (isSchemaStream(contentSchema)) {
-          request.body = await this.parseRequestTo(request, 'stream');
+          request.body = await this.convertRequestBodyTo(request, 'stream');
 
           errors.push(...validateSchemaStream(contentSchema, request.body, ['request', 'body']));
         } else if (isSchemaString(contentSchema)) {
-          request.body = await this.parseRequestTo(request, 'string');
+          request.body = await this.convertRequestBodyTo(request, 'string');
 
           errors.push(...validateSchemaString(contentSchema, request.body, ['request', 'body']));
         } else {
@@ -146,11 +146,11 @@ export class HttpContract {
     };
   }
 
-  protected static async parseRequestTo(request: http.IncomingMessage, outputType: 'stream'): Promise<Readable | undefined>;
-  protected static async parseRequestTo(request: http.IncomingMessage, outputType: 'buffer'): Promise<Buffer | undefined>;
-  protected static async parseRequestTo(request: http.IncomingMessage, outputType: 'json'): Promise<any | undefined>;
-  protected static async parseRequestTo(request: http.IncomingMessage, outputType: 'string'): Promise<string | undefined>;
-  protected static async parseRequestTo(request: http.IncomingMessage, outputType: string): Promise<unknown> {
+  protected static async convertRequestBodyTo(request: http.IncomingMessage, outputType: 'stream'): Promise<Readable | undefined>;
+  protected static async convertRequestBodyTo(request: http.IncomingMessage, outputType: 'buffer'): Promise<Buffer | undefined>;
+  protected static async convertRequestBodyTo(request: http.IncomingMessage, outputType: 'json'): Promise<any | undefined>;
+  protected static async convertRequestBodyTo(request: http.IncomingMessage, outputType: 'string'): Promise<string | undefined>;
+  protected static async convertRequestBodyTo(request: http.IncomingMessage, outputType: string): Promise<unknown> {
     return new Promise((resolve, reject) => {
       if (request.headers['transfer-encoding'] === undefined && isNaN(parseInt(request.headers['content-length'], 10))) {
         return resolve(undefined);
