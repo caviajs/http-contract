@@ -14,7 +14,11 @@ export function generateStructure(schema: SchemaArray | SchemaBoolean | SchemaBu
   let content: string = '';
 
   if (isSchemaArray(schema)) {
-    content += `${ generateStructure(schema.items) }[]`;
+    if (isSchemaEnum(schema.items)) {
+      content += `(${ generateStructure(schema.items) })[]`;
+    } else {
+      content += `${ generateStructure(schema.items) }[]`;
+    }
   } else if (isSchemaBoolean(schema)) {
     content += 'boolean';
   } else if (isSchemaBuffer(schema)) {
@@ -50,7 +54,7 @@ export function generateStructure(schema: SchemaArray | SchemaBoolean | SchemaBu
   }
 
   if (getSchemaNullable(schema) === true) {
-    content += '| null';
+    content += '|null';
   }
 
   return content;
