@@ -60,8 +60,7 @@ declare module 'http' {
     // todo: inferred by contract?
     body: any | undefined;
     // headers: http.IncomingHttpHeaders;
-    // @ts-ignore
-    params: http.Params | { [name: string]: boolean | number; };
+    // params: http.Params | { [name: string]: boolean | number; };
     query: { [name: string]: boolean | number | string; } | undefined;
   }
 }

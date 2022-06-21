@@ -258,5 +258,5 @@ it('should validate the required condition correctly', async () => {
   }
 });
 
-it('should validate the type condition correctly', () => {
-});
+// it('should validate the type condition correctly', () => {
+// });
