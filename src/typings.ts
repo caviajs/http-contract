@@ -10,7 +10,7 @@ import { SchemaString } from './schema-string';
 
 declare module '@caviajs/http-router' {
   export type BodySchema =
-    | { contentSchema: SchemaArray | SchemaBoolean | SchemaBuffer | SchemaEnum | SchemaNumber | SchemaObject | SchemaStream; contentType: 'application/json'; }
+    | { contentSchema: SchemaArray | SchemaBoolean | SchemaBuffer | SchemaNumber | SchemaObject | SchemaStream; contentType: 'application/json'; }
     | { contentSchema: SchemaBuffer | SchemaStream; contentType: 'application/octet-stream'; }
     | { contentSchema: SchemaBuffer | SchemaStream | SchemaObject; contentType: 'application/x-www-form-urlencoded'; }
     | { contentSchema: SchemaBuffer | SchemaStream | SchemaString; contentType: 'application/xml'; }
