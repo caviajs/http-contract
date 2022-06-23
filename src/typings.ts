@@ -21,7 +21,7 @@ declare module '@caviajs/http-router' {
     | { contentSchema: SchemaBuffer | SchemaStream | SchemaString; contentType: 'text/css'; }
     | { contentSchema: SchemaBuffer | SchemaStream | SchemaString; contentType: 'text/csv'; }
     | { contentSchema: SchemaBuffer | SchemaStream | SchemaString; contentType: 'text/html'; }
-    | { contentSchema: SchemaBuffer | SchemaStream | SchemaString; contentType: 'text/plain'; }
+    | { contentSchema: SchemaBuffer | SchemaEnum | SchemaStream | SchemaString; contentType: 'text/plain'; }
     | { contentSchema: SchemaBuffer | SchemaStream; contentType: 'video/mp4'; }
 
   export interface HeadersSchema {
