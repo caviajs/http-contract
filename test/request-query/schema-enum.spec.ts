@@ -1,7 +1,7 @@
 import { HttpRouter, RouteMetadata } from '@caviajs/http-router';
 import http from 'http';
 import supertest from 'supertest';
-import { HttpContract } from '../src';
+import { HttpContract } from '../../src';
 
 function createServer(routeMetadata: RouteMetadata): http.Server {
   const httpRouter: HttpRouter = new HttpRouter();
