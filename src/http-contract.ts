@@ -59,7 +59,7 @@ export class HttpContract {
 
           errors.push(...validateSchemaBuffer(contentSchema, request.body, ['request', 'body']));
         } else if (isSchemaEnum(contentSchema)) {
-          request.body = await this.convertRequestBodyTo(request, 'json');
+          request.body = await this.convertRequestBodyTo(request, 'string');
 
           errors.push(...validateSchemaEnum(contentSchema, request.body, ['request', 'body']));
         } else if (isSchemaNumber(contentSchema)) {
