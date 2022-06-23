@@ -67,7 +67,11 @@ export class HttpContract {
 
           errors.push(...validateSchemaNumber(contentSchema, request.body, ['request', 'body']));
         } else if (isSchemaObject(contentSchema)) {
-          request.body = await this.convertRequestBodyTo(request, 'json');
+          if (contentType === 'application/x-www-form-urlencoded') {
+            request.body = url.parse(`?${ await this.convertRequestBodyTo(request, 'string') }`, true).query;
+          } else {
+            request.body = await this.convertRequestBodyTo(request, 'json');
+          }
 
           errors.push(...validateSchemaObject(contentSchema, request.body, ['request', 'body']));
         } else if (isSchemaStream(contentSchema)) {
