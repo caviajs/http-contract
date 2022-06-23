@@ -18,8 +18,7 @@ it('should convert request stream to object', async () => {
         contract: {
           request: {
             body: {
-              contentSchema: { type: 'object' },
-              contentType: 'application/json',
+              'application/json': { type: 'object' },
             },
           }
         }

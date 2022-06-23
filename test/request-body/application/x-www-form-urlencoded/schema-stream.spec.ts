@@ -25,8 +25,7 @@ it('should convert request stream to Readable stream', async () => {
         contract: {
           request: {
             body: {
-              contentSchema: { type: 'stream' },
-              contentType: 'application/x-www-form-urlencoded',
+              'application/x-www-form-urlencoded': { type: 'stream' },
             },
           }
         }

@@ -1,24 +1,31 @@
 import { HttpRouter } from '@caviajs/http-router';
 import http from 'http';
 import supertest from 'supertest';
+import { Readable } from 'stream';
 import { HttpContract } from '../../../../src';
 
-it('should convert request stream to Buffer', async () => {
-  let body: any;
+it('should convert request stream to Readable stream', async () => {
+  let body: Readable;
+  let bodyBuffer: Buffer = Buffer.alloc(0);
 
   const httpRouter: HttpRouter = new HttpRouter();
 
   httpRouter
     .intercept(HttpContract.setup())
     .route({
-      handler: (request) => {
+      handler: async (request) => {
         body = request.body;
+
+        await new Promise<void>(resolve => {
+          request.body.on('data', (chunk: Buffer) => bodyBuffer = Buffer.concat([bodyBuffer, chunk]));
+          request.body.on('end', () => resolve());
+        });
       },
       metadata: {
         contract: {
           request: {
             body: {
-              'text/plain': { type: 'buffer' },
+              'video/mp4': { type: 'stream' },
             },
           }
         }
@@ -33,9 +40,9 @@ it('should convert request stream to Buffer', async () => {
 
   await supertest(httpServer)
     .post('/')
-    .set('Content-Type', 'text/plain')
+    .set('Content-Type', 'video/mp4')
     .send('Hello World');
 
-  expect(Buffer.isBuffer(body)).toEqual(true);
-  expect(body.toString()).toEqual('Hello World');
+  expect(body instanceof Readable).toEqual(true);
+  expect(bodyBuffer.toString()).toEqual('Hello World');
 });

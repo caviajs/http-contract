@@ -18,7 +18,7 @@ it('should convert request stream to Buffer', async () => {
         contract: {
           request: {
             body: {
-              'text/plain': { type: 'buffer' },
+              'video/mp4': { type: 'buffer' },
             },
           }
         }
@@ -33,7 +33,7 @@ it('should convert request stream to Buffer', async () => {
 
   await supertest(httpServer)
     .post('/')
-    .set('Content-Type', 'text/plain')
+    .set('Content-Type', 'video/mp4')
     .send('Hello World');
 
   expect(Buffer.isBuffer(body)).toEqual(true);

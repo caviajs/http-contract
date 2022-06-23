@@ -9,20 +9,25 @@ import { SchemaStream } from './schema-stream';
 import { SchemaString } from './schema-string';
 
 declare module '@caviajs/http-router' {
-  export type BodySchema =
-    | { contentSchema: SchemaArray | SchemaBoolean | SchemaBuffer | SchemaNumber | SchemaObject | SchemaStream; contentType: 'application/json'; }
-    | { contentSchema: SchemaBuffer | SchemaStream; contentType: 'application/octet-stream'; }
-    | { contentSchema: SchemaBuffer | SchemaStream | SchemaObject; contentType: 'application/x-www-form-urlencoded'; }
-    | { contentSchema: SchemaBuffer | SchemaStream | SchemaString; contentType: 'application/xml'; }
-    | { contentSchema: SchemaBuffer | SchemaStream; contentType: 'image/gif'; }
-    | { contentSchema: SchemaBuffer | SchemaStream; contentType: 'image/jpeg'; }
-    | { contentSchema: SchemaBuffer | SchemaStream; contentType: 'image/png'; }
-    | { contentSchema: SchemaBuffer | SchemaStream; contentType: 'image/tiff'; }
-    | { contentSchema: SchemaBuffer | SchemaStream | SchemaString; contentType: 'text/css'; }
-    | { contentSchema: SchemaBuffer | SchemaStream | SchemaString; contentType: 'text/csv'; }
-    | { contentSchema: SchemaBuffer | SchemaStream | SchemaString; contentType: 'text/html'; }
-    | { contentSchema: SchemaBuffer | SchemaEnum | SchemaStream | SchemaString; contentType: 'text/plain'; }
-    | { contentSchema: SchemaBuffer | SchemaStream; contentType: 'video/mp4'; }
+  /**
+   * In the context of the incoming request, mime type refers to the Content-Type header.
+   * In response context, key refers to Accept in request headers.
+   */
+  export interface BodySchema {
+    'application/json'?: SchemaArray | SchemaBoolean | SchemaBuffer | SchemaNumber | SchemaObject | SchemaStream;
+    'application/octet-stream'?: SchemaBuffer | SchemaStream;
+    'application/x-www-form-urlencoded'?: SchemaBuffer | SchemaStream | SchemaObject;
+    'application/xml'?: SchemaBuffer | SchemaStream | SchemaString;
+    'image/gif'?: SchemaBuffer | SchemaStream;
+    'image/jpeg'?: SchemaBuffer | SchemaStream;
+    'image/png'?: SchemaBuffer | SchemaStream;
+    'image/tiff'?: SchemaBuffer | SchemaStream;
+    'text/css'?: SchemaBuffer | SchemaStream | SchemaString;
+    'text/csv'?: SchemaBuffer | SchemaStream | SchemaString;
+    'text/html'?: SchemaBuffer | SchemaStream | SchemaString;
+    'text/plain'?: SchemaBuffer | SchemaStream | SchemaString;
+    'video/mp4'?: SchemaBuffer | SchemaStream;
+  }
 
   export interface HeadersSchema {
     [name: string]: SchemaEnum | SchemaString;

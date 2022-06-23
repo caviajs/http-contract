@@ -3,7 +3,7 @@ import http from 'http';
 import supertest from 'supertest';
 import { HttpContract } from '../../../../src';
 
-it('should convert request stream to string', async () => {
+it('should convert request stream to Buffer', async () => {
   let body: any;
 
   const httpRouter: HttpRouter = new HttpRouter();
@@ -18,8 +18,7 @@ it('should convert request stream to string', async () => {
         contract: {
           request: {
             body: {
-              contentSchema: { enum: ['hello', 'world'], type: 'enum' },
-              contentType: 'text/plain',
+              'image/png': { type: 'buffer' },
             },
           }
         }
@@ -34,9 +33,9 @@ it('should convert request stream to string', async () => {
 
   await supertest(httpServer)
     .post('/')
-    .set('Content-Type', 'text/plain')
-    .send('hello');
+    .set('Content-Type', 'image/png')
+    .send('Hello World');
 
-  expect(typeof body).toEqual('string');
-  expect(body).toEqual('hello');
+  expect(Buffer.isBuffer(body)).toEqual(true);
+  expect(body.toString()).toEqual('Hello World');
 });

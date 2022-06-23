@@ -18,8 +18,7 @@ it('should convert request stream to boolean (true)', async () => {
         contract: {
           request: {
             body: {
-              contentSchema: { type: 'boolean' },
-              contentType: 'application/json',
+              'application/json': { type: 'boolean' },
             },
           }
         }
@@ -56,8 +55,7 @@ it('should convert request stream to boolean (false)', async () => {
         contract: {
           request: {
             body: {
-              contentSchema: { type: 'boolean' },
-              contentType: 'application/json',
+              'application/json': { type: 'boolean' },
             },
           }
         }

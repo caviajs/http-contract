@@ -25,8 +25,7 @@ it('should convert request stream to Readable stream', async () => {
         contract: {
           request: {
             body: {
-              contentSchema: { type: 'stream' },
-              contentType: 'text/csv',
+              'text/csv': { type: 'stream' },
             },
           }
         }

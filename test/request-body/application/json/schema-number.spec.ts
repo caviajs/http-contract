@@ -18,8 +18,7 @@ it('should convert request stream to number', async () => {
         contract: {
           request: {
             body: {
-              contentSchema: { type: 'number' },
-              contentType: 'application/json',
+              'application/json': { type: 'number' },
             },
           }
         }

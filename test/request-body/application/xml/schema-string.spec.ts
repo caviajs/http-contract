@@ -18,8 +18,7 @@ it('should convert request stream to string', async () => {
         contract: {
           request: {
             body: {
-              contentSchema: { type: 'string' },
-              contentType: 'application/xml',
+              'application/xml': { type: 'string' },
             },
           }
         }

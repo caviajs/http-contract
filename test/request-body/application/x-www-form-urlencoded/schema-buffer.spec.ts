@@ -18,8 +18,7 @@ it('should convert request stream to Buffer', async () => {
         contract: {
           request: {
             body: {
-              contentSchema: { type: 'buffer' },
-              contentType: 'application/x-www-form-urlencoded',
+              'application/x-www-form-urlencoded': { type: 'buffer' },
             },
           }
         }

@@ -18,8 +18,7 @@ it('should convert request stream to array', async () => {
         contract: {
           request: {
             body: {
-              contentSchema: { type: 'array' },
-              contentType: 'application/json',
+              'application/json': { type: 'array' },
             },
           }
         }
