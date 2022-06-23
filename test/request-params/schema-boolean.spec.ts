@@ -1,5 +1,5 @@
 import { HttpRouter } from '@caviajs/http-router';
-import { HttpContract } from '../src';
+import { HttpContract } from '../../src';
 import http from 'http';
 import supertest from 'supertest';
 
