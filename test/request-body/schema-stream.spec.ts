@@ -31,10 +31,9 @@ describe('SchemaStream', () => {
   });
 
   it('should attempt to convert the data to stream and then call validateSchemaStream', async () => {
-    for (const CONTENT_TYPE of CONTENT_TYPES) {
-      const validateSchemaStreamSpy = jest
-        .spyOn(schemaStream, 'validateSchemaStream');
+    const validateSchemaStreamSpy = jest.spyOn(schemaStream, 'validateSchemaStream');
 
+    for (const CONTENT_TYPE of CONTENT_TYPES) {
       let body: Readable;
       let bodyBuffer: Buffer = Buffer.alloc(0);
 
@@ -77,17 +76,19 @@ describe('SchemaStream', () => {
       expect(bodyBuffer.toString()).toEqual(DATA);
 
       expect(validateSchemaStreamSpy).toHaveBeenNthCalledWith(1, SCHEMA, expect.any(http.IncomingMessage), PATH);
+
+      jest.clearAllMocks();
     }
   });
 
   it('should return 400 if validateSchemaStream return an array with errors', async () => {
+    const errors: ValidationError[] = [{ message: 'Lorem ipsum', path: PATH.join('.') }];
+
+    jest
+      .spyOn(schemaStream, 'validateSchemaStream')
+      .mockImplementation(() => errors);
+
     for (const CONTENT_TYPE of CONTENT_TYPES) {
-      const errors: ValidationError[] = [{ message: 'Lorem ipsum', path: PATH.join('.') }];
-
-      jest
-        .spyOn(schemaStream, 'validateSchemaStream')
-        .mockImplementation(() => errors);
-
       const httpRouter: HttpRouter = new HttpRouter();
 
       httpRouter
@@ -118,6 +119,8 @@ describe('SchemaStream', () => {
 
       expect(response.body).toEqual(errors);
       expect(response.statusCode).toEqual(400);
+
+      jest.clearAllMocks();
     }
   });
 });

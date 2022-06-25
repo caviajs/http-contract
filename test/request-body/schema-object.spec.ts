@@ -18,10 +18,9 @@ describe('SchemaObject', () => {
   });
 
   it('should attempt to convert the data to object and then call validateSchemaObject', async () => {
-    for (const [CONTENT_TYPE, DATA_AS_STRING, DATA_AS_OBJECT] of DATASET) {
-      const validateSchemaObjectSpy = jest
-        .spyOn(schemaObject, 'validateSchemaObject');
+    const validateSchemaObjectSpy = jest.spyOn(schemaObject, 'validateSchemaObject');
 
+    for (const [CONTENT_TYPE, DATA_AS_STRING, DATA_AS_OBJECT] of DATASET) {
       let body: any;
 
       const httpRouter: HttpRouter = new HttpRouter();
@@ -64,13 +63,13 @@ describe('SchemaObject', () => {
   });
 
   it('should return 400 if validateSchemaObject return an array with errors', async () => {
+    const errors: ValidationError[] = [{ message: 'Lorem ipsum', path: PATH.join('.') }];
+
+    jest
+      .spyOn(schemaObject, 'validateSchemaObject')
+      .mockImplementation(() => errors);
+
     for (const [CONTENT_TYPE, DATA_AS_STRING] of DATASET) {
-      const errors: ValidationError[] = [{ message: 'Lorem ipsum', path: PATH.join('.') }];
-
-      jest
-        .spyOn(schemaObject, 'validateSchemaObject')
-        .mockImplementation(() => errors);
-
       const httpRouter: HttpRouter = new HttpRouter();
 
       httpRouter

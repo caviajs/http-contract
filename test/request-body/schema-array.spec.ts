@@ -19,10 +19,9 @@ describe('SchemaArray', () => {
   });
 
   it('should attempt to convert the data to array and then call validateSchemaArray', async () => {
-    for (const CONTENT_TYPE of CONTENT_TYPES) {
-      const validateSchemaArraySpy = jest
-        .spyOn(schemaArray, 'validateSchemaArray');
+    const validateSchemaArraySpy = jest.spyOn(schemaArray, 'validateSchemaArray');
 
+    for (const CONTENT_TYPE of CONTENT_TYPES) {
       let body: any;
 
       const httpRouter: HttpRouter = new HttpRouter();
@@ -59,17 +58,19 @@ describe('SchemaArray', () => {
       expect(body).toEqual(DATA_AS_ARRAY);
 
       expect(validateSchemaArraySpy).toHaveBeenNthCalledWith(1, SCHEMA, DATA_AS_ARRAY, PATH);
+
+      jest.clearAllMocks();
     }
   });
 
   it('should return 400 if validateSchemaArray return an array with errors', async () => {
+    const errors: ValidationError[] = [{ message: 'Lorem ipsum', path: PATH.join('.') }];
+
+    jest
+      .spyOn(schemaArray, 'validateSchemaArray')
+      .mockImplementation(() => errors);
+
     for (const CONTENT_TYPE of CONTENT_TYPES) {
-      const errors: ValidationError[] = [{ message: 'Lorem ipsum', path: PATH.join('.') }];
-
-      jest
-        .spyOn(schemaArray, 'validateSchemaArray')
-        .mockImplementation(() => errors);
-
       const httpRouter: HttpRouter = new HttpRouter();
 
       httpRouter
@@ -100,6 +101,8 @@ describe('SchemaArray', () => {
 
       expect(response.body).toEqual(errors);
       expect(response.statusCode).toEqual(400);
+
+      jest.clearAllMocks();
     }
   });
 });

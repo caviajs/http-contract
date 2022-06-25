@@ -21,11 +21,10 @@ describe('SchemaBoolean', () => {
   });
 
   it('should attempt to convert the data to boolean and then call validateSchemaBoolean', async () => {
+    const validateSchemaBooleanSpy = jest.spyOn(schemaBoolean, 'validateSchemaBoolean');
+
     for (const CONTENT_TYPE of CONTENT_TYPES) {
       for (const [DATA_AS_STRING, DATA_AS_BOOLEAN] of DATASET) {
-        const validateSchemaBooleanSpy = jest
-          .spyOn(schemaBoolean, 'validateSchemaBoolean');
-
         let body: any;
 
         const httpRouter: HttpRouter = new HttpRouter();
@@ -69,14 +68,14 @@ describe('SchemaBoolean', () => {
   });
 
   it('should return 400 if validateSchemaBoolean return an array with errors', async () => {
+    const errors: ValidationError[] = [{ message: 'Lorem ipsum', path: PATH.join('.') }];
+
+    jest
+      .spyOn(schemaBoolean, 'validateSchemaBoolean')
+      .mockImplementation(() => errors);
+
     for (const CONTENT_TYPE of CONTENT_TYPES) {
       for (const [DATA_AS_STRING] of DATASET) {
-        const errors: ValidationError[] = [{ message: 'Lorem ipsum', path: PATH.join('.') }];
-
-        jest
-          .spyOn(schemaBoolean, 'validateSchemaBoolean')
-          .mockImplementation(() => errors);
-
         const httpRouter: HttpRouter = new HttpRouter();
 
         httpRouter
