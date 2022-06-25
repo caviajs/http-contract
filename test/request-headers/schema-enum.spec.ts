@@ -14,7 +14,7 @@ describe('SchemaEnum', () => {
     jest.clearAllMocks();
   });
 
-  it('should attempt to convert the data to string and then call validateSchemaEnum', async () => {
+  it('should attempt to convert the data to enum and then call validateSchemaEnum', async () => {
     const validateSchemaEnumSpy = jest.spyOn(schemaEnum, 'validateSchemaEnum');
 
     let header: any;
