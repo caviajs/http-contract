@@ -3,7 +3,7 @@ import { SchemaString, validateSchemaString } from '../src';
 
 const path: string[] = ['foo', 'bar'];
 
-describe('SchemaString', () => {
+describe('validateSchemaString', () => {
   it('should validate the expressions condition correctly', () => {
     const schema: SchemaString = {
       expressions: [

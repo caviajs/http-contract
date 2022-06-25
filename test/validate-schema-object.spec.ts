@@ -3,7 +3,7 @@ import { SchemaObject, validateSchemaObject } from '../src';
 
 const path: string[] = ['foo', 'bar'];
 
-describe('SchemaObject', () => {
+describe('validateSchemaObject', () => {
   it('should validate the strict condition correctly', () => {
     // strict: false (default)
     {

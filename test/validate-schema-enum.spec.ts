@@ -3,7 +3,7 @@ import { SchemaEnum, validateSchemaEnum } from '../src';
 
 const path: string[] = ['foo', 'bar'];
 
-describe('SchemaEnum', () => {
+describe('validateSchemaEnum', () => {
   it('should validate the enum condition correctly', () => {
     const schema: SchemaEnum = {
       enum: ['Hello', 'World'],

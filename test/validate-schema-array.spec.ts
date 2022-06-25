@@ -3,7 +3,7 @@ import { SchemaArray, validateSchemaArray } from '../src';
 
 const path: string[] = ['foo', 'bar'];
 
-describe('SchemaArray', () => {
+describe('validateSchemaArray', () => {
   it('should validate the items condition correctly', () => {
     const schema: SchemaArray = {
       items: { type: 'string' },

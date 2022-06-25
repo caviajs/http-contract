@@ -3,7 +3,7 @@ import { SchemaBoolean, validateSchemaBoolean } from '../src';
 
 const path: string[] = ['foo', 'bar'];
 
-describe('SchemaBoolean', () => {
+describe('validateSchemaBoolean', () => {
   it('should validate the nullable condition correctly', () => {
     // nullable: false (default)
     expect(validateSchemaBoolean({ type: 'boolean' }, null)).toEqual([

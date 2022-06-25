@@ -3,7 +3,7 @@ import { SchemaNumber, validateSchemaNumber } from '../src';
 
 const path: string[] = ['foo', 'bar'];
 
-describe('SchemaNumber', () => {
+describe('validateSchemaNumber', () => {
   it('should validate the max condition correctly', () => {
     const schema: SchemaNumber = {
       max: 10,

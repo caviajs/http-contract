@@ -3,7 +3,7 @@ import { Readable } from 'stream';
 
 const path: string[] = ['foo', 'bar'];
 
-describe('SchemaStream', () => {
+describe('validateSchemaStream', () => {
   it('should validate the nullable condition correctly', () => {
     // nullable: false (default)
     expect(validateSchemaStream({ type: 'stream' }, null)).toEqual([

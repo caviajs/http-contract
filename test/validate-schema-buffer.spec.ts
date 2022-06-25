@@ -3,7 +3,7 @@ import { SchemaBuffer, validateSchemaBuffer } from '../src';
 
 const path: string[] = ['foo', 'bar'];
 
-describe('SchemaBuffer', () => {
+describe('validateSchemaBuffer', () => {
   it('should validate the maxLength condition correctly', () => {
     const schema: SchemaBuffer = {
       maxLength: 10,
