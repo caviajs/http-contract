@@ -1,233 +1,94 @@
-import { HttpRouter, RouteMetadata } from '@caviajs/http-router';
+import { HttpRouter } from '@caviajs/http-router';
 import http from 'http';
 import supertest from 'supertest';
-import { HttpContract } from '../../src';
+import { HttpContract, SchemaNumber, ValidationError } from '../../src';
+import * as schemaNumber from '../../src/schema-number';
 
-function createServer(routeMetadata: RouteMetadata): http.Server {
-  const httpRouter: HttpRouter = new HttpRouter();
+const QUERY_NAME: string = 'id';
+const QUERY_VALUE: number = 1245;
+const QUERY_SCHEMA: SchemaNumber = { type: 'number' };
+const PATH: string[] = ['request', 'query', QUERY_NAME];
 
-  httpRouter
-    .intercept(HttpContract.setup())
-    .route({
-      handler: () => undefined,
-      metadata: routeMetadata,
-      method: 'POST',
-      path: '/',
-    });
-
-  return http.createServer((request, response) => {
-    httpRouter.handle(request, response);
-  });
-}
-
-it('should validate the max condition correctly', async () => {
-  const httpServer = createServer({
-    contract: {
-      request: {
-        query: {
-          age: {
-            max: 10,
-            type: 'number',
-          },
-        },
-      },
-    },
+describe('SchemaNumber', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
-  // greater than max
-  {
-    const response = await supertest(httpServer)
-      .post('/')
-      .query({ age: '15' });
+  it('should attempt to convert the data to number and then call validateSchemaNumber', async () => {
+    const validateSchemaNumberSpy = jest.spyOn(schemaNumber, 'validateSchemaNumber');
 
-    expect(response.body).toEqual([
-      { message: 'The value should be less than or equal to 10', path: 'request.query.age' },
-    ]);
-    expect(response.headers['content-type']).toBe('application/json; charset=utf-8');
-    expect(response.statusCode).toEqual(400);
-  }
+    let query: any;
 
-  // equal to max
-  {
-    const response = await supertest(httpServer)
-      .post('/')
-      .query({ age: '10' });
+    const httpRouter: HttpRouter = new HttpRouter();
 
-    expect(response.body).toEqual({});
-    expect(response.headers['content-type']).toBeUndefined();
-    expect(response.statusCode).toEqual(200);
-  }
-
-  // less than max
-  {
-    const response = await supertest(httpServer)
-      .post('/')
-      .query({ age: '5' });
-
-    expect(response.body).toEqual({});
-    expect(response.headers['content-type']).toBeUndefined();
-    expect(response.statusCode).toEqual(200);
-  }
-});
-
-
-it('should validate the min condition correctly', async () => {
-  const httpServer = createServer({
-    contract: {
-      request: {
-        query: {
-          age: {
-            min: 10,
-            type: 'number',
-          },
+    httpRouter
+      .intercept(HttpContract.setup())
+      .route({
+        handler: (request) => {
+          query = request.query[QUERY_NAME];
         },
-      },
-    },
-  });
-
-  // greater than min
-  {
-    const response = await supertest(httpServer)
-      .post('/')
-      .query({ age: '15' });
-
-    expect(response.body).toEqual({});
-    expect(response.headers['content-type']).toBeUndefined();
-    expect(response.statusCode).toEqual(200);
-  }
-
-  // equal to min
-  {
-    const response = await supertest(httpServer)
-      .post('/')
-      .query({ age: '10' });
-
-    expect(response.body).toEqual({});
-    expect(response.headers['content-type']).toBeUndefined();
-    expect(response.statusCode).toEqual(200);
-  }
-
-  // less than min
-  {
-    const response = await supertest(httpServer)
-      .post('/')
-      .query({ age: '5' });
-
-    expect(response.body).toEqual([
-      { message: 'The value should be greater than or equal to 10', path: 'request.query.age' },
-    ]);
-    expect(response.headers['content-type']).toBe('application/json; charset=utf-8');
-    expect(response.statusCode).toEqual(400);
-  }
-});
-
-it('should validate the required condition correctly', async () => {
-  // required: false (default)
-  {
-    const httpServer = createServer({
-      contract: {
-        request: {
-          query: {
-            age: {
-              type: 'number',
-            },
-          },
-        },
-      },
-    });
-
-    const response = await supertest(httpServer)
-      .post('/');
-
-    expect(response.body).toEqual({});
-    expect(response.headers['content-type']).toBeUndefined();
-    expect(response.statusCode).toEqual(200);
-  }
-
-  // required: false
-  {
-    const httpServer = createServer({
-      contract: {
-        request: {
-          query: {
-            age: {
-              required: false,
-              type: 'number',
-            },
-          },
-        },
-      },
-    });
-
-    const response = await supertest(httpServer)
-      .post('/');
-
-    expect(response.body).toEqual({});
-    expect(response.headers['content-type']).toBeUndefined();
-    expect(response.statusCode).toEqual(200);
-  }
-
-  // required: true
-  {
-    const httpServer = createServer({
-      contract: {
-        request: {
-          query: {
-            age: {
-              required: true,
-              type: 'number',
-            },
-          },
-        },
-      },
-    });
-
-    const response = await supertest(httpServer)
-      .post('/');
-
-    expect(response.body).toEqual([
-      { message: 'The value is required', path: 'request.query.age' },
-      { message: 'The value should be number', path: 'request.query.age' },
-    ]);
-    expect(response.headers['content-type']).toBe('application/json; charset=utf-8');
-    expect(response.statusCode).toEqual(400);
-  }
-});
-
-it('should convert number string to number', async () => {
-  let age: any;
-
-  const httpRouter: HttpRouter = new HttpRouter();
-
-  httpRouter
-    .intercept(HttpContract.setup())
-    .route({
-      handler: (req) => {
-        age = req.query.age;
-      },
-      metadata: {
-        contract: {
-          request: {
-            query: {
-              age: {
-                type: 'number',
+        metadata: {
+          contract: {
+            request: {
+              query: {
+                [QUERY_NAME]: QUERY_SCHEMA,
               },
             },
           },
         },
-      },
-      method: 'POST',
-      path: '/',
+        method: 'POST',
+        path: '/',
+      });
+
+    const httpServer: http.Server = http.createServer((request, response) => {
+      httpRouter.handle(request, response);
     });
 
-  const httpServer: http.Server = http.createServer((request, response) => {
-    httpRouter.handle(request, response);
+    await supertest(httpServer)
+      .post(`/`)
+      .query({ [QUERY_NAME]: QUERY_VALUE });
+
+    expect(typeof query).toEqual('number');
+    expect(query).toEqual(QUERY_VALUE);
+
+    expect(validateSchemaNumberSpy).toHaveBeenNthCalledWith(1, QUERY_SCHEMA, QUERY_VALUE, PATH);
   });
 
-  const response = await supertest(httpServer)
-    .post('/')
-    .query({ age: '1245' });
+  it('should return 400 if validateSchemaNumber return an array with errors', async () => {
+    const errors: ValidationError[] = [{ message: 'Lorem ipsum', path: PATH.join('.') }];
 
-  expect(age).toEqual(1245);
-  expect(typeof age).toBe('number');
+    jest
+      .spyOn(schemaNumber, 'validateSchemaNumber')
+      .mockImplementation(() => errors);
+
+    const httpRouter: HttpRouter = new HttpRouter();
+
+    httpRouter
+      .intercept(HttpContract.setup())
+      .route({
+        handler: () => undefined,
+        metadata: {
+          contract: {
+            request: {
+              query: {
+                [QUERY_NAME]: QUERY_SCHEMA,
+              },
+            },
+          },
+        },
+        method: 'POST',
+        path: '/',
+      });
+
+    const httpServer: http.Server = http.createServer((request, response) => {
+      httpRouter.handle(request, response);
+    });
+
+    const response = await supertest(httpServer)
+      .post(`/`)
+      .query({ [QUERY_NAME]: QUERY_VALUE });
+
+    expect(response.body).toEqual(errors);
+    expect(response.statusCode).toEqual(400);
+  });
 });

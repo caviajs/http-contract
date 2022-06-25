@@ -1,170 +1,105 @@
-import { HttpRouter, RouteMetadata } from '@caviajs/http-router';
+import { HttpRouter } from '@caviajs/http-router';
 import http from 'http';
 import supertest from 'supertest';
-import { HttpContract } from '../../src';
+import { HttpContract, SchemaBoolean, ValidationError } from '../../src';
+import * as schemaBoolean from '../../src/schema-boolean';
 
-function createServer(routeMetadata: RouteMetadata): http.Server {
-  const httpRouter: HttpRouter = new HttpRouter();
+const QUERY_NAME: string = 'id';
+const QUERY_VALUES: any[] = [
+  ['true', true],
+  ['false', false],
+];
+const QUERY_SCHEMA: SchemaBoolean = { type: 'boolean' };
+const PATH: string[] = ['request', 'query', QUERY_NAME];
 
-  httpRouter
-    .intercept(HttpContract.setup())
-    .route({
-      handler: () => undefined,
-      metadata: routeMetadata,
-      method: 'POST',
-      path: '/',
-    });
-
-  return http.createServer((request, response) => {
-    httpRouter.handle(request, response);
+describe('SchemaBoolean', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
   });
-}
 
-it('should validate the required condition correctly', async () => {
-  // required: false (default)
-  {
-    const httpServer = createServer({
-      contract: {
-        request: {
-          query: {
-            age: {
-              type: 'boolean',
-            },
+  it('should attempt to convert the data to boolean and then call validateSchemaBoolean', async () => {
+    const validateSchemaBooleanSpy = jest.spyOn(schemaBoolean, 'validateSchemaBoolean');
+
+    for (const [QUERY_VALUE_AS_STRING, QUERY_VALUE_AS_BOOLEAN] of QUERY_VALUES) {
+      let query: any;
+
+      const httpRouter: HttpRouter = new HttpRouter();
+
+      httpRouter
+        .intercept(HttpContract.setup())
+        .route({
+          handler: (request) => {
+            query = request.query[QUERY_NAME];
           },
-        },
-      },
-    });
-
-    const response = await supertest(httpServer)
-      .post('/');
-
-    expect(response.body).toEqual({});
-    expect(response.headers['content-type']).toBeUndefined();
-    expect(response.statusCode).toEqual(200);
-  }
-
-  // required: false
-  {
-    const httpServer = createServer({
-      contract: {
-        request: {
-          query: {
-            age: {
-              required: false,
-              type: 'boolean',
-            },
-          },
-        },
-      },
-    });
-
-    const response = await supertest(httpServer)
-      .post('/');
-
-    expect(response.body).toEqual({});
-    expect(response.headers['content-type']).toBeUndefined();
-    expect(response.statusCode).toEqual(200);
-  }
-
-  // required: true
-  {
-    const httpServer = createServer({
-      contract: {
-        request: {
-          query: {
-            age: {
-              required: true,
-              type: 'boolean',
-            },
-          },
-        },
-      },
-    });
-
-    const response = await supertest(httpServer)
-      .post('/');
-
-    expect(response.body).toEqual([
-      { message: 'The value is required', path: 'request.query.age' },
-      { message: 'The value should be boolean', path: 'request.query.age' },
-    ]);
-    expect(response.headers['content-type']).toBe('application/json; charset=utf-8');
-    expect(response.statusCode).toEqual(400);
-  }
-});
-
-it('should convert boolean string to a boolean ("true")', async () => {
-  let included: any;
-
-  const httpRouter: HttpRouter = new HttpRouter();
-
-  httpRouter
-    .intercept(HttpContract.setup())
-    .route({
-      handler: (req) => {
-        included = req.query.included;
-      },
-      metadata: {
-        contract: {
-          request: {
-            query: {
-              included: {
-                type: 'boolean',
+          metadata: {
+            contract: {
+              request: {
+                query: {
+                  [QUERY_NAME]: QUERY_SCHEMA,
+                },
               },
             },
           },
-        },
-      },
-      method: 'POST',
-      path: '/',
-    });
+          method: 'POST',
+          path: '/',
+        });
 
-  const httpServer: http.Server = http.createServer((request, response) => {
-    httpRouter.handle(request, response);
+      const httpServer: http.Server = http.createServer((request, response) => {
+        httpRouter.handle(request, response);
+      });
+
+      await supertest(httpServer)
+        .post(`/`)
+        .query({ [QUERY_NAME]: QUERY_VALUE_AS_STRING });
+
+      expect(typeof query).toEqual('boolean');
+      expect(query).toEqual(QUERY_VALUE_AS_BOOLEAN);
+
+      expect(validateSchemaBooleanSpy).toHaveBeenNthCalledWith(1, QUERY_SCHEMA, QUERY_VALUE_AS_BOOLEAN, PATH);
+
+      jest.clearAllMocks();
+    }
   });
 
-  await supertest(httpServer)
-    .post('/')
-    .query({ included: 'true' });
+  it('should return 400 if validateSchemaBoolean return an array with errors', async () => {
+    const errors: ValidationError[] = [{ message: 'Lorem ipsum', path: PATH.join('.') }];
 
-  expect(included).toEqual(true);
-  expect(typeof included).toBe('boolean');
-});
+    jest
+      .spyOn(schemaBoolean, 'validateSchemaBoolean')
+      .mockImplementation(() => errors);
 
-it('should convert boolean string to a boolean ("false")', async () => {
-  let included: any;
+    for (const [QUERY_VALUE_AS_STRING] of QUERY_VALUES) {
+      const httpRouter: HttpRouter = new HttpRouter();
 
-  const httpRouter: HttpRouter = new HttpRouter();
-
-  httpRouter
-    .intercept(HttpContract.setup())
-    .route({
-      handler: (req) => {
-        included = req.query.included;
-      },
-      metadata: {
-        contract: {
-          request: {
-            query: {
-              included: {
-                type: 'boolean',
+      httpRouter
+        .intercept(HttpContract.setup())
+        .route({
+          handler: () => undefined,
+          metadata: {
+            contract: {
+              request: {
+                query: {
+                  [QUERY_NAME]: QUERY_SCHEMA,
+                },
               },
             },
           },
-        },
-      },
-      method: 'POST',
-      path: '/',
-    });
+          method: 'POST',
+          path: '/',
+        });
 
-  const httpServer: http.Server = http.createServer((request, response) => {
-    httpRouter.handle(request, response);
+      const httpServer: http.Server = http.createServer((request, response) => {
+        httpRouter.handle(request, response);
+      });
+
+      const response = await supertest(httpServer)
+        .post(`/`)
+        .query({ [QUERY_NAME]: QUERY_VALUE_AS_STRING });
+
+      expect(response.body).toEqual(errors);
+      expect(response.statusCode).toEqual(400);
+
+      jest.clearAllMocks();
+    }
   });
-
-  await supertest(httpServer)
-    .post('/')
-    .query({ included: 'false' });
-
-  expect(included).toEqual(false);
-  expect(typeof included).toBe('boolean');
 });

@@ -1,149 +1,94 @@
-import { HttpRouter, RouteMetadata } from '@caviajs/http-router';
+import { HttpRouter } from '@caviajs/http-router';
 import http from 'http';
 import supertest from 'supertest';
-import { HttpContract } from '../../src';
+import { HttpContract, SchemaEnum, ValidationError } from '../../src';
+import * as schemaEnum from '../../src/schema-enum';
 
-function createServer(routeMetadata: RouteMetadata): http.Server {
-  const httpRouter: HttpRouter = new HttpRouter();
+const QUERY_NAME: string = 'id';
+const QUERY_VALUE: string = 'hello';
+const QUERY_SCHEMA: SchemaEnum = { enum: ['hello', 'world'], type: 'enum' };
+const PATH: string[] = ['request', 'query', QUERY_NAME];
 
-  httpRouter
-    .intercept(HttpContract.setup())
-    .route({
-      handler: () => undefined,
-      metadata: routeMetadata,
-      method: 'POST',
-      path: '/',
-    });
-
-  return http.createServer((request, response) => {
-    httpRouter.handle(request, response);
-  });
-}
-
-it('should validate the enum condition correctly', async () => {
-  const httpServer = createServer({
-    contract: {
-      request: {
-        query: {
-          name: {
-            enum: ['Hello', 'World'],
-            nullable: false,
-            required: true,
-            type: 'enum',
-          },
-        },
-      },
-    },
+describe('SchemaEnum', () => {
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
-  // valid
-  {
+  it('should attempt to convert the data to enum and then call validateSchemaEnum', async () => {
+    const validateSchemaEnumSpy = jest.spyOn(schemaEnum, 'validateSchemaEnum');
+
+    let query: any;
+
+    const httpRouter: HttpRouter = new HttpRouter();
+
+    httpRouter
+      .intercept(HttpContract.setup())
+      .route({
+        handler: (request) => {
+          query = request.query[QUERY_NAME];
+        },
+        metadata: {
+          contract: {
+            request: {
+              query: {
+                [QUERY_NAME]: QUERY_SCHEMA,
+              },
+            },
+          },
+        },
+        method: 'POST',
+        path: '/',
+      });
+
+    const httpServer: http.Server = http.createServer((request, response) => {
+      httpRouter.handle(request, response);
+    });
+
+    await supertest(httpServer)
+      .post(`/`)
+      .query({ [QUERY_NAME]: QUERY_VALUE });
+
+    expect(typeof query).toEqual('string');
+    expect(query).toEqual(QUERY_VALUE);
+
+    expect(validateSchemaEnumSpy).toHaveBeenNthCalledWith(1, QUERY_SCHEMA, QUERY_VALUE, PATH);
+  });
+
+  it('should return 400 if validateSchemaEnum return an array with errors', async () => {
+    const errors: ValidationError[] = [{ message: 'Lorem ipsum', path: PATH.join('.') }];
+
+    jest
+      .spyOn(schemaEnum, 'validateSchemaEnum')
+      .mockImplementation(() => errors);
+
+    const httpRouter: HttpRouter = new HttpRouter();
+
+    httpRouter
+      .intercept(HttpContract.setup())
+      .route({
+        handler: () => undefined,
+        metadata: {
+          contract: {
+            request: {
+              query: {
+                [QUERY_NAME]: QUERY_SCHEMA,
+              },
+            },
+          },
+        },
+        method: 'POST',
+        path: '/',
+      });
+
+    const httpServer: http.Server = http.createServer((request, response) => {
+      httpRouter.handle(request, response);
+    });
+
     const response = await supertest(httpServer)
-      .post('/')
-      .query({ name: 'Hello' });
+      .post(`/`)
+      .query({ [QUERY_NAME]: QUERY_VALUE });
 
-    expect(response.body).toEqual({});
-    expect(response.headers['content-type']).toBeUndefined();
-    expect(response.statusCode).toEqual(200);
-  }
-
-  // valid
-  {
-    const response = await supertest(httpServer)
-      .post('/')
-      .query({ name: 'World' });
-
-    expect(response.body).toEqual({});
-    expect(response.headers['content-type']).toBeUndefined();
-    expect(response.statusCode).toEqual(200);
-  }
-
-  // invalid
-  {
-    const response = await supertest(httpServer)
-      .post('/')
-      .query({ name: 'Foo' });
-
-    expect(response.body).toEqual([
-      { message: 'The value must be one of the following values: Hello, World', path: 'request.query.name' },
-    ]);
-    expect(response.headers['content-type']).toBe('application/json; charset=utf-8');
+    expect(response.body).toEqual(errors);
     expect(response.statusCode).toEqual(400);
-  }
-});
-
-it('should validate the required condition correctly', async () => {
-  // required: false (default)
-  {
-    const httpServer = createServer({
-      contract: {
-        request: {
-          query: {
-            name: {
-              enum: ['Hello', 'World'],
-              type: 'enum',
-            },
-          },
-        },
-      },
-    });
-
-    const response = await supertest(httpServer)
-      .post('/');
-
-    expect(response.body).toEqual({});
-    expect(response.headers['content-type']).toBeUndefined();
-    expect(response.statusCode).toEqual(200);
-  }
-
-  // required: false
-  {
-    const httpServer = createServer({
-      contract: {
-        request: {
-          query: {
-            name: {
-              enum: ['Hello', 'World'],
-              required: false,
-              type: 'enum',
-            },
-          },
-        },
-      },
-    });
-
-    const response = await supertest(httpServer)
-      .post('/');
-
-    expect(response.body).toEqual({});
-    expect(response.headers['content-type']).toBeUndefined();
-    expect(response.statusCode).toEqual(200);
-  }
-
-  // required: true
-  {
-    const httpServer = createServer({
-      contract: {
-        request: {
-          query: {
-            name: {
-              enum: ['Hello', 'World'],
-              required: true,
-              type: 'enum',
-            },
-          },
-        },
-      },
-    });
-
-    const response = await supertest(httpServer)
-      .post('/');
-
-    expect(response.body).toEqual([
-      { message: 'The value is required', path: 'request.query.name' },
-      { message: 'The value must be one of the following values: Hello, World', path: 'request.query.name' },
-    ]);
-    expect(response.headers['content-type']).toBe('application/json; charset=utf-8');
-    expect(response.statusCode).toEqual(400);
-  }
+  });
 });
