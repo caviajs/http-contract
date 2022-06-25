@@ -55,10 +55,23 @@ export function generateHttpClient(name: string, specification: Specification): 
       const isQueryRequired: boolean = Object.values(route.metadata.contract.request?.query || {}).some((schema) => getSchemaRequired(schema));
       const isPayloadRequired: boolean = isBodyRequired || isHeadersRequired || isParamsRequired || isQueryRequired;
 
+      if (route.metadata.contract.request?.body) {
+        for (const mimeType of Object.keys(route.metadata.contract.request.body)) {
+          content += `public static async ${ camelCaseName }(payload${ isPayloadRequired ? '' : '?' }: {`;
+          content += `agent?: http.Agent | https.Agent,`;
+          content += `body${ isBodyRequired ? '' : '?' }: ${ pascalCase(`${ pascalCaseName }Body${ mimeType }`) },`;
+          content += `headers${ isHeadersRequired ? '' : '?' }: { 'content-type': '${ mimeType }'; } & ${ pascalCaseName }Headers,`;
+          content += route.metadata.contract.request?.params ? `params${ isParamsRequired ? '' : '?' }: ${ pascalCaseName }Params,` : '';
+          content += route.metadata.contract.request?.query ? `query${ isQueryRequired ? '' : '?' }: ${ pascalCaseName }Query,` : '';
+          content += `timeout?: number,`;
+          content += `}): Promise<${ pascalCaseName }Response>;`;
+        }
+      }
+
       content += `public static async ${ camelCaseName }(payload${ isPayloadRequired ? '' : '?' }: {`;
       content += `agent?: http.Agent | https.Agent,`;
       content += route.metadata.contract.request?.body ? `body${ isBodyRequired ? '' : '?' }: ${ pascalCaseName }Body,` : '';
-      content += route.metadata.contract.request?.headers ? `headers${ isHeadersRequired ? '' : '?' }: ${ pascalCaseName }Headers,` : '';
+      content += `headers${ isHeadersRequired ? '' : '?' }: ${ pascalCaseName }Headers,`;
       content += route.metadata.contract.request?.params ? `params${ isParamsRequired ? '' : '?' }: ${ pascalCaseName }Params,` : '';
       content += route.metadata.contract.request?.query ? `query${ isQueryRequired ? '' : '?' }: ${ pascalCaseName }Query,` : '';
       content += `timeout?: number,`;
@@ -92,21 +105,21 @@ export function generateHttpClient(name: string, specification: Specification): 
         content += `case ${ status }:`;
         content += `return <${ pascalCaseName }Response${ status }>{`;
 
-        if (isSchemaArray(response.body?.contentSchema)) {
+        if (isSchemaArray(response.body)) {
           content += `body: await streamToJSON(response.body),`;
-        } else if (isSchemaBoolean(response.body?.contentSchema)) {
+        } else if (isSchemaBoolean(response.body)) {
           content += `body: await streamToJSON(response.body),`;
-        } else if (isSchemaBuffer(response.body?.contentSchema)) {
+        } else if (isSchemaBuffer(response.body)) {
           content += `body: await streamToBuffer(response.body),`;
-        } else if (isSchemaEnum(response.body?.contentSchema)) {
+        } else if (isSchemaEnum(response.body)) {
           content += `body: await streamToJSON(response.body),`;
-        } else if (isSchemaNumber(response.body?.contentSchema)) {
+        } else if (isSchemaNumber(response.body)) {
           content += `body: await streamToJSON(response.body),`;
-        } else if (isSchemaObject(response.body?.contentSchema)) {
+        } else if (isSchemaObject(response.body)) {
           content += `body: await streamToJSON(response.body),`;
-        } else if (isSchemaStream(response.body?.contentSchema)) {
+        } else if (isSchemaStream(response.body)) {
           content += `body: response.body,`;
-        } else if (isSchemaString(response.body?.contentSchema)) {
+        } else if (isSchemaString(response.body)) {
           content += `body: await streamToString(response.body),`;
         } else {
           content += `body: response.body,`;
@@ -135,16 +148,16 @@ export function generateHttpClient(name: string, specification: Specification): 
       const pascalCaseName: string = pascalCase(route.metadata.contract.name);
 
       if (route.metadata.contract.request?.body) {
-        content += generateType(`${ pascalCaseName }Body`, route.metadata.contract.request.body.contentSchema);
-      }
-
-      if (route.metadata.contract.request?.headers) {
-        content += generateType(`${ pascalCaseName }Headers`, {
-          properties: route.metadata.contract.request.headers,
-          strict: false,
-          type: 'object',
+        Object.entries(route.metadata.contract.request.body).forEach(([mimeType, mimeTypeSchema]) => {
+          content += generateType(pascalCase(`${ pascalCaseName }Body${ mimeType }`), mimeTypeSchema);
         });
       }
+
+      content += generateType(`${ pascalCaseName }Headers`, {
+        properties: route.metadata.contract.request?.headers || {},
+        strict: false,
+        type: 'object',
+      });
 
       if (route.metadata.contract.request?.params) {
         content += generateType(`${ pascalCaseName }Params`, {
@@ -180,7 +193,7 @@ export function generateHttpClient(name: string, specification: Specification): 
           content += `}`;
 
           if (response.body) {
-            content += `export type ${ pascalCaseName }Response${ status }Body = ${ generateStructure(response.body.contentSchema) };`;
+            content += `export type ${ pascalCaseName }Response${ status }Body = ${ generateStructure(response.body) };`;
           } else {
             content += `export type ${ pascalCaseName }Response${ status }Body = unknown;`;
           }
