@@ -9,11 +9,7 @@ import { SchemaStream } from './schema-stream';
 import { SchemaString } from './schema-string';
 
 declare module '@caviajs/http-router' {
-  /**
-   * In the context of the incoming request, mime type refers to the Content-Type header.
-   * In response context, key refers to Accept in request headers.
-   */
-  export interface BodySchema {
+  export interface RequestBodySchema {
     'application/json'?: SchemaArray | SchemaBoolean | SchemaBuffer | SchemaNumber | SchemaObject | SchemaStream;
     'application/octet-stream'?: SchemaBuffer | SchemaStream;
     'application/x-www-form-urlencoded'?: SchemaBuffer | SchemaStream | SchemaObject;
@@ -29,31 +25,45 @@ declare module '@caviajs/http-router' {
     'video/mp4'?: SchemaBuffer | SchemaStream;
   }
 
-  export interface HeadersSchema {
+  export interface RequestHeadersSchema {
     [name: string]: SchemaEnum | SchemaString;
   }
 
-  export interface ParamsSchema {
+  export interface RequestParamsSchema {
     [name: string]: SchemaBoolean | SchemaEnum | SchemaNumber | SchemaString;
   }
 
-  export interface QuerySchema {
+  export interface RequestQuerySchema {
     [name: string]: SchemaBoolean | SchemaEnum | SchemaNumber | SchemaString;
+  }
+
+  export type ResponseBodySchema =
+    | SchemaArray
+    | SchemaBoolean
+    | SchemaBuffer
+    | SchemaEnum
+    | SchemaNumber
+    | SchemaObject
+    | SchemaStream
+    | SchemaString;
+
+  export interface ResponseHeadersSchema {
+    [name: string]: SchemaEnum | SchemaString;
   }
 
   export interface RouteMetadata {
     readonly contract?: {
       readonly name?: string;
       readonly request?: {
-        readonly body?: BodySchema;
-        readonly headers?: HeadersSchema;
-        readonly params?: ParamsSchema;
-        readonly query?: QuerySchema;
+        readonly body?: RequestBodySchema;
+        readonly headers?: RequestHeadersSchema;
+        readonly params?: RequestParamsSchema;
+        readonly query?: RequestQuerySchema;
       };
       readonly responses?: {
         readonly [status: number]: {
-          readonly body?: BodySchema;
-          readonly headers?: HeadersSchema;
+          readonly body?: ResponseBodySchema;
+          readonly headers?: ResponseHeadersSchema;
         };
       };
     };
