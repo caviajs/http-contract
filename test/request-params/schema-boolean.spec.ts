@@ -4,11 +4,11 @@ import supertest from 'supertest';
 import { HttpContract, SchemaBoolean, ValidationError } from '../../src';
 import * as schemaBoolean from '../../src/schema-boolean';
 
-const DATASET: any[] = [
+const PARAM_NAME: string = 'id';
+const PARAM_VALUES: any[] = [
   ['true', true],
   ['false', false],
 ];
-const PARAM_NAME: string = 'id';
 const PARAM_SCHEMA: SchemaBoolean = { type: 'boolean' };
 const PATH: string[] = ['request', 'params', PARAM_NAME];
 
@@ -20,7 +20,7 @@ describe('SchemaBoolean', () => {
   it('should attempt to convert the data to boolean and then call validateSchemaBoolean', async () => {
     const validateSchemaBooleanSpy = jest.spyOn(schemaBoolean, 'validateSchemaBoolean');
 
-    for (const [DATA_AS_STRING, DATA_AS_BOOLEAN] of DATASET) {
+    for (const [PARAM_VALUE_AS_STRING, PARAM_VALUE_AS_BOOLEAN] of PARAM_VALUES) {
       let param: any;
 
       const httpRouter: HttpRouter = new HttpRouter();
@@ -49,12 +49,12 @@ describe('SchemaBoolean', () => {
       });
 
       await supertest(httpServer)
-        .post(`/${ DATA_AS_STRING }`);
+        .post(`/${ PARAM_VALUE_AS_STRING }`);
 
       expect(typeof param).toEqual('boolean');
-      expect(param).toEqual(DATA_AS_BOOLEAN);
+      expect(param).toEqual(PARAM_VALUE_AS_BOOLEAN);
 
-      expect(validateSchemaBooleanSpy).toHaveBeenNthCalledWith(1, PARAM_SCHEMA, DATA_AS_BOOLEAN, PATH);
+      expect(validateSchemaBooleanSpy).toHaveBeenNthCalledWith(1, PARAM_SCHEMA, PARAM_VALUE_AS_BOOLEAN, PATH);
 
       jest.clearAllMocks();
     }
@@ -67,7 +67,7 @@ describe('SchemaBoolean', () => {
       .spyOn(schemaBoolean, 'validateSchemaBoolean')
       .mockImplementation(() => errors);
 
-    for (const [DATA_AS_STRING] of DATASET) {
+    for (const [PARAM_VALUE_AS_STRING] of PARAM_VALUES) {
       const httpRouter: HttpRouter = new HttpRouter();
 
       httpRouter
@@ -92,7 +92,7 @@ describe('SchemaBoolean', () => {
       });
 
       const response = await supertest(httpServer)
-        .post(`/${ DATA_AS_STRING }`);
+        .post(`/${ PARAM_VALUE_AS_STRING }`);
 
       expect(response.body).toEqual(errors);
       expect(response.statusCode).toEqual(400);
