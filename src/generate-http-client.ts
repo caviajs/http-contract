@@ -35,22 +35,22 @@ function generateMethod(route: SpecificationRoute): string {
     const isPayloadRequired: boolean = isBodyRequired || isHeadersRequired || isParamsRequired || isQueryRequired;
 
     for (const mimeType of Object.keys(contractRequestBody || {})) {
-      content += `public static async ${ contractNameAsCamelCase }(payload${ isPayloadRequired || '?' }: {`;
+      content += `public static async ${ contractNameAsCamelCase }(payload${ isPayloadRequired ? '' : '?' }: {`;
       content += `agent?: http.Agent | https.Agent,`;
-      content += `body${ isBodyRequired || '?' }: ${ contractNameAsPascalCase }Body${ pascalCase(mimeType) },`;
-      content += `headers${ isHeadersRequired || '?' }: { 'content-type': '${ mimeType }'; } & ${ contractNameAsPascalCase }Headers,`;
-      content += contractRequestParams && `params${ isParamsRequired || '?' }: ${ contractNameAsPascalCase }Params,`;
-      content += contractRequestQuery && `query${ isQueryRequired || '?' }: ${ contractNameAsPascalCase }Query,`;
+      content += `body${ isBodyRequired ? '' : '?' }: ${ contractNameAsPascalCase }Body${ pascalCase(mimeType) },`;
+      content += `headers${ isHeadersRequired ? '' : '?' }: { 'content-type': '${ mimeType }'; } & ${ contractNameAsPascalCase }Headers,`;
+      content += contractRequestParams ? `params${ isParamsRequired ? '' : '?' }: ${ contractNameAsPascalCase }Params,` : '';
+      content += contractRequestQuery ? `query${ isQueryRequired ? '' : '?' }: ${ contractNameAsPascalCase }Query,` : '';
       content += `timeout?: number,`;
       content += `}): Promise<${ contractNameAsPascalCase }Response>;`;
     }
 
-    content += `public static async ${ contractNameAsCamelCase }(payload${ isPayloadRequired || '?' }: {`;
+    content += `public static async ${ contractNameAsCamelCase }(payload${ isPayloadRequired ? '' : '?' }: {`;
     content += `agent?: http.Agent | https.Agent,`;
-    content += contractRequestBody && `body${ isBodyRequired || '?' }: any,`;
-    content += `headers${ isHeadersRequired || '?' }: ${ contractNameAsPascalCase }Headers,`;
-    content += contractRequestParams && `params${ isParamsRequired || '?' }: ${ contractNameAsPascalCase }Params,`;
-    content += contractRequestQuery && `query${ isQueryRequired || '?' }: ${ contractNameAsPascalCase }Query,`;
+    content += contractRequestBody ? `body${ isBodyRequired ? '' : '?' }: any,` : '';
+    content += `headers${ isHeadersRequired ? '' : '?' }: ${ contractNameAsPascalCase }Headers,`;
+    content += contractRequestParams ? `params${ isParamsRequired ? '' : '?' }: ${ contractNameAsPascalCase }Params,` : '';
+    content += contractRequestQuery ? `query${ isQueryRequired ? '' : '?' }: ${ contractNameAsPascalCase }Query,` : '';
     content += `timeout?: number,`;
     content += `}): Promise<${ contractNameAsPascalCase }Response> {`;
     content += `const url: URL = new URL('${ route.path }', this.connectionUrl);`;
@@ -68,8 +68,8 @@ function generateMethod(route: SpecificationRoute): string {
     }
 
     content += 'const response: HttpResponse<Readable> = await HttpClient.request({';
-    content += contractRequestBody && 'body: payload?.body,';
-    content += contractRequestHeaders && 'headers: payload?.headers,';
+    content += contractRequestBody ? 'body: payload?.body,' : '';
+    content += contractRequestHeaders ? 'headers: payload?.headers,' : '';
     content += `method: '${ route.method }',`;
     content += `responseType: 'stream',`;
     content += `timeout: payload?.timeout,`;
