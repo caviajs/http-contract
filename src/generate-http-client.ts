@@ -49,8 +49,8 @@ export function generateHttpClient(name: string, specification: Specification): 
       const camelCaseName: string = camelCase(route.metadata.contract.name);
       const pascalCaseName: string = pascalCase(route.metadata.contract.name);
 
-      const isBodyRequired: boolean = route.metadata.contract.request?.body ? getSchemaRequired(route.metadata.contract.request?.body) : false;
-      const isHeadersRequired: boolean = Object.values(route.metadata.contract.request?.headers || {}).some((schema) => getSchemaRequired(schema));
+      const isBodyRequired: boolean = Object.values(route.metadata.contract.request?.body || {}).some((schema) => getSchemaRequired(schema));
+      const isHeadersRequired: boolean = isBodyRequired || Object.values(route.metadata.contract.request?.headers || {}).some((schema) => getSchemaRequired(schema));
       const isParamsRequired: boolean = Object.values(route.metadata.contract.request?.params || {}).some((schema) => getSchemaRequired(schema));
       const isQueryRequired: boolean = Object.values(route.metadata.contract.request?.query || {}).some((schema) => getSchemaRequired(schema));
       const isPayloadRequired: boolean = isBodyRequired || isHeadersRequired || isParamsRequired || isQueryRequired;
@@ -70,7 +70,7 @@ export function generateHttpClient(name: string, specification: Specification): 
 
       content += `public static async ${ camelCaseName }(payload${ isPayloadRequired ? '' : '?' }: {`;
       content += `agent?: http.Agent | https.Agent,`;
-      content += route.metadata.contract.request?.body ? `body${ isBodyRequired ? '' : '?' }: ${ pascalCaseName }Body,` : '';
+      content += route.metadata.contract.request?.body ? `body${ isBodyRequired ? '' : '?' }: any,` : '';
       content += `headers${ isHeadersRequired ? '' : '?' }: ${ pascalCaseName }Headers,`;
       content += route.metadata.contract.request?.params ? `params${ isParamsRequired ? '' : '?' }: ${ pascalCaseName }Params,` : '';
       content += route.metadata.contract.request?.query ? `query${ isQueryRequired ? '' : '?' }: ${ pascalCaseName }Query,` : '';
