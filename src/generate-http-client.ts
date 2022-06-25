@@ -1,10 +1,9 @@
-import { Specification } from '@caviajs/http-router';
-import { generateStructure } from './generate-structure';
-import { generateType } from './generate-type';
-import { pascalCase } from './pascal-case';
-import { format } from 'prettier';
+import { Specification, SpecificationRoute } from '@caviajs/http-router';
+import prettier from 'prettier';
 import { camelCase } from './camel-case';
+import { generateStructure } from './generate-structure';
 import { getSchemaRequired } from './get-schema-required';
+import { pascalCase } from './pascal-case';
 import { isSchemaArray } from './schema-array';
 import { isSchemaBoolean } from './schema-boolean';
 import { isSchemaBuffer } from './schema-buffer';
@@ -13,6 +12,215 @@ import { isSchemaNumber } from './schema-number';
 import { isSchemaObject } from './schema-object';
 import { isSchemaStream } from './schema-stream';
 import { isSchemaString } from './schema-string';
+
+function generateMethod(route: SpecificationRoute): string {
+  let content: string = '';
+
+  const contractName = route.metadata?.contract?.name;
+  const contractRequestBody = route.metadata?.contract?.request?.body;
+  const contractRequestHeaders = route.metadata?.contract?.request?.headers;
+  const contractRequestParams = route.metadata?.contract?.request?.params;
+  const contractRequestQuery = route.metadata?.contract?.request?.query;
+  const contractResponses = route.metadata?.contract?.responses;
+
+  if (contractName) {
+    const camelCaseName: string = camelCase(contractName);
+    const pascalCaseName: string = pascalCase(contractName);
+
+    const isBodyRequired: boolean = Object.values(contractRequestBody || {}).some((schema) => getSchemaRequired(schema));
+    const isHeadersRequired: boolean = isBodyRequired || Object.values(contractRequestHeaders || {}).some((schema) => getSchemaRequired(schema));
+    const isParamsRequired: boolean = Object.values(contractRequestParams || {}).some((schema) => getSchemaRequired(schema));
+    const isQueryRequired: boolean = Object.values(contractRequestQuery || {}).some((schema) => getSchemaRequired(schema));
+    const isPayloadRequired: boolean = isBodyRequired || isHeadersRequired || isParamsRequired || isQueryRequired;
+
+    for (const mimeType of Object.keys(contractRequestBody || {})) {
+      content += `public static async ${ camelCaseName }(payload${ isPayloadRequired ? '' : '?' }: {`;
+      content += `agent?: http.Agent | https.Agent,`;
+      content += `body${ isBodyRequired ? '' : '?' }: ${ pascalCase(`${ pascalCaseName }Body${ mimeType }`) },`;
+      content += `headers${ isHeadersRequired ? '' : '?' }: { 'content-type': '${ mimeType }'; } & ${ pascalCaseName }Headers,`;
+      content += contractRequestParams ? `params${ isParamsRequired ? '' : '?' }: ${ pascalCaseName }Params,` : '';
+      content += contractRequestQuery ? `query${ isQueryRequired ? '' : '?' }: ${ pascalCaseName }Query,` : '';
+      content += `timeout?: number,`;
+      content += `}): Promise<${ pascalCaseName }Response>;`;
+    }
+
+    content += `public static async ${ camelCaseName }(payload${ isPayloadRequired ? '' : '?' }: {`;
+    content += `agent?: http.Agent | https.Agent,`;
+    content += contractRequestBody ? `body${ isBodyRequired ? '' : '?' }: any,` : '';
+    content += `headers${ isHeadersRequired ? '' : '?' }: ${ pascalCaseName }Headers,`;
+    content += contractRequestParams ? `params${ isParamsRequired ? '' : '?' }: ${ pascalCaseName }Params,` : '';
+    content += contractRequestQuery ? `query${ isQueryRequired ? '' : '?' }: ${ pascalCaseName }Query,` : '';
+    content += `timeout?: number,`;
+    content += `}): Promise<${ pascalCaseName }Response> {`;
+    content += `const url: URL = new URL('${ route.path }', this.connectionUrl);`;
+
+    if (contractRequestParams) {
+      content += `Object.entries(payload?.params || {}).forEach(([key, value]) => {`;
+      content += 'url.pathname = url.pathname.replace(`:${ key }`, value);';
+      content += `});`;
+    }
+
+    if (contractRequestQuery) {
+      content += 'Object.entries(payload?.query || {}).forEach(([key, value]) => {';
+      content += 'url.searchParams.set(key, value);';
+      content += '});';
+    }
+
+    content += 'const response: HttpResponse<Readable> = await HttpClient.request({';
+    content += contractRequestBody ? 'body: payload?.body,' : '';
+    content += contractRequestHeaders ? 'headers: payload?.headers,' : '';
+    content += `method: '${ route.method }',`;
+    content += `responseType: 'stream',`;
+    content += `timeout: payload?.timeout,`;
+    content += `url: url.toString(),`;
+    content += '});';
+
+    content += `switch (response.statusCode) {`;
+
+    for (const [status, response] of Object.entries(contractResponses || {})) {
+      content += `case ${ status }:`;
+      content += `return <${ pascalCaseName }Response${ status }>{`;
+
+      if (isSchemaArray(response.body)) {
+        content += `body: await streamToJSON(response.body),`;
+      } else if (isSchemaBoolean(response.body)) {
+        content += `body: await streamToJSON(response.body),`;
+      } else if (isSchemaBuffer(response.body)) {
+        content += `body: await streamToBuffer(response.body),`;
+      } else if (isSchemaEnum(response.body)) {
+        content += `body: await streamToJSON(response.body),`;
+      } else if (isSchemaNumber(response.body)) {
+        content += `body: await streamToJSON(response.body),`;
+      } else if (isSchemaObject(response.body)) {
+        content += `body: await streamToJSON(response.body),`;
+      } else if (isSchemaStream(response.body)) {
+        content += `body: response.body,`;
+      } else if (isSchemaString(response.body)) {
+        content += `body: await streamToString(response.body),`;
+      } else {
+        content += `body: response.body,`;
+      }
+
+      content += `headers: response.headers,`;
+      content += `statusCode: response.statusCode,`;
+      content += `statusMessage: response.statusMessage,`;
+      content += `};`;
+    }
+
+    content += 'default:';
+    content += 'return <any>response';
+
+    content += `}`;
+
+
+    content += `}`;
+  }
+
+  return content;
+}
+
+function generateRequestBodyTypes(route: SpecificationRoute): string {
+  let content: string = '';
+
+  const contractName: string | undefined = route.metadata?.contract?.name;
+
+  if (contractName) {
+    Object.entries(route.metadata?.contract?.request?.body || {}).forEach(([mimeType, mimeTypeSchema]) => {
+      content += `export type ${ pascalCase(`${ contractName }Body${ mimeType }`) } = ${ generateStructure(mimeTypeSchema) };`;
+    });
+  }
+
+  return content;
+}
+
+function generateRequestHeadersType(route: SpecificationRoute): string {
+  let content: string = '';
+
+  const contractName: string | undefined = route.metadata?.contract?.name;
+  const contractRequestHeaders = route.metadata?.contract?.request?.headers;
+
+  if (contractName) {
+    const structure: string = generateStructure({ properties: contractRequestHeaders || {}, strict: false, type: 'object' });
+
+    content += `export type ${ pascalCase(`${ contractName }Headers`) } = ${ structure };`;
+  }
+
+  return content;
+}
+
+function generateRequestParamsType(route: SpecificationRoute): string {
+  let content: string = '';
+
+  const contractName: string | undefined = route.metadata?.contract?.name;
+  const contractRequestParams = route.metadata?.contract?.request?.params;
+
+  if (contractName && contractRequestParams) {
+    const structure: string = generateStructure({ properties: contractRequestParams, strict: true, type: 'object' });
+
+    content += `export type ${ pascalCase(`${ contractName }Params`) } = ${ structure };`;
+  }
+
+  return content;
+}
+
+function generateRequestQueryType(route: SpecificationRoute): string {
+  let content: string = '';
+
+  const contractName: string | undefined = route.metadata?.contract?.name;
+  const contractRequestQuery = route.metadata?.contract?.request?.query;
+
+  if (contractName && contractRequestQuery) {
+    const structure: string = generateStructure({ properties: contractRequestQuery || {}, strict: false, type: 'object' });
+
+    content += `export type ${ pascalCase(`${ contractName }Query`) } = ${ structure };`;
+  }
+
+  return content;
+}
+
+function generateResponseTypes(route: SpecificationRoute): string {
+  let content: string = '';
+
+  const contractName = route.metadata?.contract?.name;
+  const contractResponses = route.metadata?.contract?.responses;
+
+  if (contractResponses) {
+    content += `export type ${ pascalCase(`${ contractName }Response`) } =`;
+    for (const status of Object.keys(contractResponses)) {
+      content += `| ${ pascalCase(`${ contractName }Response${ status }`) }`;
+    }
+    content += `;`;
+
+    for (const [status, response] of Object.entries(contractResponses)) {
+      content += `export interface ${ pascalCase(`${ contractName }Response${ status }`) } extends HttpResponse {`;
+      content += `body: ${ pascalCase(`${ contractName }Response${ status }Body`) },`;
+      content += `headers: ${ pascalCase(`${ contractName }Response${ status }Headers`) },`;
+      content += `statusCode: ${ status },`;
+      content += `statusMessage: string,`;
+      content += `}`;
+
+      if (response.body) {
+        content += `export type ${ pascalCase(`${ contractName }Response${ status }Body`) } = ${ generateStructure(response.body) };`;
+      } else {
+        content += `export type ${ pascalCase(`${ contractName }Response${ status }Body`) } = unknown;`;
+      }
+
+      if (response.headers) {
+        content += `export type ${ pascalCase(`${ contractName }Response${ status }Headers`) } = ${ generateStructure({
+          properties: response.headers,
+          strict: false,
+          type: 'object'
+        }) };`;
+      } else {
+        content += `export type ${ pascalCase(`${ contractName }Response${ status }Headers`) } = { [name: string]: string; };`;
+      }
+    }
+  } else {
+    content += `export type ${ pascalCase(`${ contractName }Response`) } = HttpResponse<Readable>;`;
+  }
+
+  return content;
+}
 
 export function generateHttpClient(name: string, specification: Specification): string {
   let content: string = '';
@@ -25,9 +233,7 @@ export function generateHttpClient(name: string, specification: Specification): 
   content += `function streamToBuffer(stream: Readable): Promise<Buffer> {`;
   content += `return new Promise((resolve, reject) => {`;
   content += `let buffer: Buffer = Buffer.alloc(0);`;
-  content += `stream.on('data', (chunk: Buffer) => {`;
-  content += `buffer = Buffer.concat([buffer, chunk]);`;
-  content += `});`;
+  content += `stream.on('data', (chunk: Buffer) => {buffer = Buffer.concat([buffer, chunk]);});`;
   content += `stream.on('end', () => resolve(buffer));`;
   content += `stream.on('error', (err) => reject(err));`;
   content += `});`;
@@ -41,176 +247,22 @@ export function generateHttpClient(name: string, specification: Specification): 
   content += `return (await streamToBuffer(stream)).toString();`;
   content += `}`;
 
-  content += `export class ${ name } {`;
+  content += `export class ${ pascalCase(name) } {`;
   content += `public static connectionUrl: string = '';`;
 
   for (const route of specification.routes) {
-    if (route.metadata?.contract?.name) {
-      const camelCaseName: string = camelCase(route.metadata.contract.name);
-      const pascalCaseName: string = pascalCase(route.metadata.contract.name);
-
-      const isBodyRequired: boolean = Object.values(route.metadata.contract.request?.body || {}).some((schema) => getSchemaRequired(schema));
-      const isHeadersRequired: boolean = isBodyRequired || Object.values(route.metadata.contract.request?.headers || {}).some((schema) => getSchemaRequired(schema));
-      const isParamsRequired: boolean = Object.values(route.metadata.contract.request?.params || {}).some((schema) => getSchemaRequired(schema));
-      const isQueryRequired: boolean = Object.values(route.metadata.contract.request?.query || {}).some((schema) => getSchemaRequired(schema));
-      const isPayloadRequired: boolean = isBodyRequired || isHeadersRequired || isParamsRequired || isQueryRequired;
-
-      if (route.metadata.contract.request?.body) {
-        for (const mimeType of Object.keys(route.metadata.contract.request.body)) {
-          content += `public static async ${ camelCaseName }(payload${ isPayloadRequired ? '' : '?' }: {`;
-          content += `agent?: http.Agent | https.Agent,`;
-          content += `body${ isBodyRequired ? '' : '?' }: ${ pascalCase(`${ pascalCaseName }Body${ mimeType }`) },`;
-          content += `headers${ isHeadersRequired ? '' : '?' }: { 'content-type': '${ mimeType }'; } & ${ pascalCaseName }Headers,`;
-          content += route.metadata.contract.request?.params ? `params${ isParamsRequired ? '' : '?' }: ${ pascalCaseName }Params,` : '';
-          content += route.metadata.contract.request?.query ? `query${ isQueryRequired ? '' : '?' }: ${ pascalCaseName }Query,` : '';
-          content += `timeout?: number,`;
-          content += `}): Promise<${ pascalCaseName }Response>;`;
-        }
-      }
-
-      content += `public static async ${ camelCaseName }(payload${ isPayloadRequired ? '' : '?' }: {`;
-      content += `agent?: http.Agent | https.Agent,`;
-      content += route.metadata.contract.request?.body ? `body${ isBodyRequired ? '' : '?' }: any,` : '';
-      content += `headers${ isHeadersRequired ? '' : '?' }: ${ pascalCaseName }Headers,`;
-      content += route.metadata.contract.request?.params ? `params${ isParamsRequired ? '' : '?' }: ${ pascalCaseName }Params,` : '';
-      content += route.metadata.contract.request?.query ? `query${ isQueryRequired ? '' : '?' }: ${ pascalCaseName }Query,` : '';
-      content += `timeout?: number,`;
-      content += `}): Promise<${ pascalCaseName }Response> {`;
-      content += `const url: URL = new URL('${ route.path }', this.connectionUrl);`;
-
-      if (route.metadata.contract.request?.params) {
-        content += `Object.entries(payload?.params || {}).forEach(([key, value]) => {`;
-        content += 'url.pathname = url.pathname.replace(`:${ key }`, value);';
-        content += `});`;
-      }
-
-      if (route.metadata.contract.request?.query) {
-        content += 'Object.entries(payload?.query || {}).forEach(([key, value]) => {';
-        content += 'url.searchParams.set(key, value);';
-        content += '});';
-      }
-
-      content += 'const response: HttpResponse<Readable> = await HttpClient.request({';
-      content += route.metadata.contract.request?.body ? 'body: payload?.body,' : '';
-      content += route.metadata.contract.request?.headers ? 'headers: payload?.headers,' : '';
-      content += `method: '${ route.method }',`;
-      content += `responseType: 'stream',`;
-      content += `timeout: payload?.timeout,`;
-      content += `url: url.toString(),`;
-      content += '});';
-
-      content += `switch (response.statusCode) {`;
-
-      for (const [status, response] of Object.entries(route.metadata?.contract?.responses || {})) {
-        content += `case ${ status }:`;
-        content += `return <${ pascalCaseName }Response${ status }>{`;
-
-        if (isSchemaArray(response.body)) {
-          content += `body: await streamToJSON(response.body),`;
-        } else if (isSchemaBoolean(response.body)) {
-          content += `body: await streamToJSON(response.body),`;
-        } else if (isSchemaBuffer(response.body)) {
-          content += `body: await streamToBuffer(response.body),`;
-        } else if (isSchemaEnum(response.body)) {
-          content += `body: await streamToJSON(response.body),`;
-        } else if (isSchemaNumber(response.body)) {
-          content += `body: await streamToJSON(response.body),`;
-        } else if (isSchemaObject(response.body)) {
-          content += `body: await streamToJSON(response.body),`;
-        } else if (isSchemaStream(response.body)) {
-          content += `body: response.body,`;
-        } else if (isSchemaString(response.body)) {
-          content += `body: await streamToString(response.body),`;
-        } else {
-          content += `body: response.body,`;
-        }
-
-        content += `headers: response.headers,`;
-        content += `statusCode: response.statusCode,`;
-        content += `statusMessage: response.statusMessage,`;
-        content += `};`;
-      }
-
-      content += 'default:';
-      content += 'return <any>response';
-
-      content += `}`;
-
-
-      content += `}`;
-    }
+    content += generateMethod(route);
   }
 
   content += `}`;
 
   for (const route of specification.routes) {
-    if (route.metadata?.contract?.name) {
-      const pascalCaseName: string = pascalCase(route.metadata.contract.name);
-
-      if (route.metadata.contract.request?.body) {
-        Object.entries(route.metadata.contract.request.body).forEach(([mimeType, mimeTypeSchema]) => {
-          content += generateType(pascalCase(`${ pascalCaseName }Body${ mimeType }`), mimeTypeSchema);
-        });
-      }
-
-      content += generateType(`${ pascalCaseName }Headers`, {
-        properties: route.metadata.contract.request?.headers || {},
-        strict: false,
-        type: 'object',
-      });
-
-      if (route.metadata.contract.request?.params) {
-        content += generateType(`${ pascalCaseName }Params`, {
-          properties: route.metadata.contract.request.params,
-          strict: true,
-          type: 'object',
-        });
-      }
-
-      if (route.metadata.contract.request?.query) {
-        content += generateType(`${ pascalCaseName }Query`, {
-          properties: route.metadata.contract.request.query,
-          strict: false,
-          type: 'object',
-        });
-      }
-
-      if (!route.metadata.contract?.responses) {
-        content += `export type ${ pascalCaseName }Response = HttpResponse<Readable>;`;
-      } else {
-        content += `export type ${ pascalCaseName }Response =`;
-        for (const status of Object.keys(route.metadata.contract?.responses || {})) {
-          content += `| ${ pascalCaseName }Response${ status }`;
-        }
-        content += `;`;
-
-        for (const [status, response] of Object.entries(route.metadata.contract?.responses || {})) {
-          content += `export interface ${ pascalCaseName }Response${ status } extends HttpResponse {`;
-          content += `body: ${ pascalCaseName }Response${ status }Body,`;
-          content += `headers: ${ pascalCaseName }Response${ status }Headers,`;
-          content += `statusCode: ${ status },`;
-          content += `statusMessage: string,`;
-          content += `}`;
-
-          if (response.body) {
-            content += `export type ${ pascalCaseName }Response${ status }Body = ${ generateStructure(response.body) };`;
-          } else {
-            content += `export type ${ pascalCaseName }Response${ status }Body = unknown;`;
-          }
-
-          if (response.headers) {
-            content += `export type ${ pascalCaseName }Response${ status }Headers = ${ generateStructure({
-              properties: response.headers,
-              strict: false,
-              type: 'object'
-            }) };`;
-          } else {
-            content += `export type ${ pascalCaseName }Response${ status }Headers = { [name: string]: string; };`;
-          }
-        }
-      }
-    }
+    content += generateRequestBodyTypes(route);
+    content += generateRequestHeadersType(route);
+    content += generateRequestParamsType(route);
+    content += generateRequestQueryType(route);
+    content += generateResponseTypes(route);
   }
 
-  return format(content, { semi: true, singleQuote: true, parser: 'typescript' });
+  return prettier.format(content, { semi: true, singleQuote: true, parser: 'typescript' });
 }
