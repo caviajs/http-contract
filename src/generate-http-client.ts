@@ -184,39 +184,41 @@ function generateResponseTypes(route: SpecificationRoute): string {
   const contractName = route.metadata?.contract?.name;
   const contractResponses = route.metadata?.contract?.responses;
 
-  if (contractResponses) {
-    content += `export type ${ pascalCase(`${ contractName }Response`) } =`;
-    for (const status of Object.keys(contractResponses)) {
-      content += `| ${ pascalCase(`${ contractName }Response${ status }`) }`;
-    }
-    content += `;`;
-
-    for (const [status, response] of Object.entries(contractResponses)) {
-      content += `export interface ${ pascalCase(`${ contractName }Response${ status }`) } extends HttpResponse {`;
-      content += `body: ${ pascalCase(`${ contractName }Response${ status }Body`) },`;
-      content += `headers: ${ pascalCase(`${ contractName }Response${ status }Headers`) },`;
-      content += `statusCode: ${ status },`;
-      content += `statusMessage: string,`;
-      content += `}`;
-
-      if (response.body) {
-        content += `export type ${ pascalCase(`${ contractName }Response${ status }Body`) } = ${ generateStructure(response.body) };`;
-      } else {
-        content += `export type ${ pascalCase(`${ contractName }Response${ status }Body`) } = unknown;`;
+  if (contractName) {
+    if (contractResponses) {
+      content += `export type ${ pascalCase(`${ contractName }Response`) } =`;
+      for (const status of Object.keys(contractResponses)) {
+        content += `| ${ pascalCase(`${ contractName }Response${ status }`) }`;
       }
+      content += `;`;
 
-      if (response.headers) {
-        content += `export type ${ pascalCase(`${ contractName }Response${ status }Headers`) } = ${ generateStructure({
-          properties: response.headers,
-          strict: false,
-          type: 'object'
-        }) };`;
-      } else {
-        content += `export type ${ pascalCase(`${ contractName }Response${ status }Headers`) } = { [name: string]: string; };`;
+      for (const [status, response] of Object.entries(contractResponses)) {
+        content += `export interface ${ pascalCase(`${ contractName }Response${ status }`) } extends HttpResponse {`;
+        content += `body: ${ pascalCase(`${ contractName }Response${ status }Body`) },`;
+        content += `headers: ${ pascalCase(`${ contractName }Response${ status }Headers`) },`;
+        content += `statusCode: ${ status },`;
+        content += `statusMessage: string,`;
+        content += `}`;
+
+        if (response.body) {
+          content += `export type ${ pascalCase(`${ contractName }Response${ status }Body`) } = ${ generateStructure(response.body) };`;
+        } else {
+          content += `export type ${ pascalCase(`${ contractName }Response${ status }Body`) } = unknown;`;
+        }
+
+        if (response.headers) {
+          content += `export type ${ pascalCase(`${ contractName }Response${ status }Headers`) } = ${ generateStructure({
+            properties: response.headers,
+            strict: false,
+            type: 'object'
+          }) };`;
+        } else {
+          content += `export type ${ pascalCase(`${ contractName }Response${ status }Headers`) } = { [name: string]: string; };`;
+        }
       }
+    } else {
+      content += `export type ${ pascalCase(`${ contractName }Response`) } = HttpResponse<Readable>;`;
     }
-  } else {
-    content += `export type ${ pascalCase(`${ contractName }Response`) } = HttpResponse<Readable>;`;
   }
 
   return content;
