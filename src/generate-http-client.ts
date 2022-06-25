@@ -124,9 +124,10 @@ function generateRequestBodyTypes(route: SpecificationRoute): string {
   let content: string = '';
 
   const contractName: string | undefined = route.metadata?.contract?.name;
+  const contractRequestBody = route.metadata?.contract?.request?.body;
 
   if (contractName) {
-    Object.entries(route.metadata?.contract?.request?.body || {}).forEach(([mimeType, mimeTypeSchema]) => {
+    Object.entries(contractRequestBody || {}).forEach(([mimeType, mimeTypeSchema]) => {
       content += `export type ${ pascalCase(contractName) }Body${ pascalCase(mimeType) } = ${ generateStructure(mimeTypeSchema) };`;
     });
   }
