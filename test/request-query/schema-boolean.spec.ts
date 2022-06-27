@@ -61,6 +61,41 @@ describe('SchemaBoolean', () => {
     }
   });
 
+  it('query declared in the schema but not passed by the client should not exist in the request.query object', async () => {
+    let queryExists: boolean;
+
+    const httpRouter: HttpRouter = new HttpRouter();
+
+    httpRouter
+      .intercept(HttpContract.setup())
+      .route({
+        handler: (request) => {
+          queryExists = Object.keys(request.query).includes(QUERY_NAME);
+        },
+        metadata: {
+          contract: {
+            request: {
+              query: {
+                // declared in schema
+                [QUERY_NAME]: QUERY_SCHEMA,
+              },
+            },
+          },
+        },
+        method: 'POST',
+        path: '/',
+      });
+
+    const httpServer: http.Server = http.createServer((request, response) => {
+      httpRouter.handle(request, response);
+    });
+
+    await supertest(httpServer)
+      .post(`/`); // but not passed by the client
+
+    expect(queryExists).toBeFalsy();
+  });
+
   it('should return 400 if validateSchemaBoolean return an array with errors', async () => {
     const errors: ValidationError[] = [{ message: 'Lorem ipsum', path: PATH.join('.') }];
 
