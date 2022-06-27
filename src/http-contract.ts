@@ -249,7 +249,7 @@ export class HttpContract {
 
           if (isSchemaBoolean(schema)) {
             if (typeof request.query[name] !== 'undefined') {
-              request.query[name] = convertToBoolean(request.query[name] as string);
+              request.query[name] = convertToBoolean(request.query[name]);
             }
 
             errors.push(...validateSchemaBoolean(schema, request.query[name], path));
@@ -257,7 +257,7 @@ export class HttpContract {
             errors.push(...validateSchemaEnum(schema, request.query[name], path));
           } else if (isSchemaNumber(schema)) {
             if (typeof request.query[name] !== 'undefined') {
-              request.query[name] = convertToNumber(request.query[name] as string);
+              request.query[name] = convertToNumber(request.query[name]);
             }
 
             errors.push(...validateSchemaNumber(schema, request.query[name], path));
