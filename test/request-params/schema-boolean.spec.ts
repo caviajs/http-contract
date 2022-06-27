@@ -74,7 +74,7 @@ describe('SchemaBoolean', () => {
         metadata: {
           contract: {
             request: {
-              query: {
+              params: {
                 // declared in schema
                 [PARAM_NAME]: PARAM_SCHEMA,
               },
