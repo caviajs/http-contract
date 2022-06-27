@@ -244,13 +244,17 @@ export class HttpContract {
           const path: string[] = ['request', 'query', name];
 
           if (isSchemaBoolean(schema)) {
-            request.query[name] = convertToBoolean(request.query[name]);
+            if (typeof request.query[name] !== 'undefined') {
+              request.query[name] = convertToBoolean(request.query[name] as string);
+            }
 
             errors.push(...validateSchemaBoolean(schema, request.query[name], path));
           } else if (isSchemaEnum(schema)) {
             errors.push(...validateSchemaEnum(schema, request.query[name], path));
           } else if (isSchemaNumber(schema)) {
-            request.query[name] = convertToNumber(request.query[name]);
+            if (typeof request.query[name] !== 'undefined') {
+              request.query[name] = convertToNumber(request.query[name] as string);
+            }
 
             errors.push(...validateSchemaNumber(schema, request.query[name], path));
           } else if (isSchemaString(schema)) {
