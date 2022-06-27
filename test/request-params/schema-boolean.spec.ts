@@ -60,6 +60,41 @@ describe('SchemaBoolean', () => {
     }
   });
 
+  it('param declared in the schema but not passed by the client should not exist in the request.params object', async () => {
+    let paramExists: boolean;
+
+    const httpRouter: HttpRouter = new HttpRouter();
+
+    httpRouter
+      .intercept(HttpContract.setup())
+      .route({
+        handler: (request) => {
+          paramExists = Object.keys(request.params).includes(PARAM_NAME);
+        },
+        metadata: {
+          contract: {
+            request: {
+              query: {
+                // declared in schema
+                [PARAM_NAME]: PARAM_SCHEMA,
+              },
+            },
+          },
+        },
+        method: 'POST',
+        path: '/:id?',
+      });
+
+    const httpServer: http.Server = http.createServer((request, response) => {
+      httpRouter.handle(request, response);
+    });
+
+    await supertest(httpServer)
+      .post(`/`); // but not passed by the client
+
+    expect(paramExists).toBeFalsy();
+  });
+
   it('should return 400 if validateSchemaBoolean return an array with errors', async () => {
     const errors: ValidationError[] = [{ message: 'Lorem ipsum', path: PATH.join('.') }];
 
