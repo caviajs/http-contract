@@ -171,7 +171,7 @@ export class HttpContract {
         const contentTypeMime: string | undefined = getContentTypeMime(request.headers['content-type']);
 
         const contentSchema = request.metadata.contract.request.body[contentTypeMime?.toLowerCase()];
-        const contentParser = CONTENT_PARSERS[`${ contentTypeMime }:${ contentSchema.type }`];
+        const contentParser = CONTENT_PARSERS[`${ contentTypeMime }:${ contentSchema?.type }`];
 
         if (!contentSchema || !contentParser) {
           throw new HttpException(415); // Unsupported Media Type
