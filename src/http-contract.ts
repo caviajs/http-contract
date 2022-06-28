@@ -48,6 +48,14 @@ const CONTENT_PARSERS: { [mime: string]: (request: http.IncomingMessage) => Prom
     return await convertRequestBodyTo(request, 'stream');
   },
 
+  /** application/pdf **/
+  'application/pdf:buffer': async request => {
+    return await convertRequestBodyTo(request, 'buffer');
+  },
+  'application/pdf:stream': async request => {
+    return await convertRequestBodyTo(request, 'stream');
+  },
+
   /** application/x-www-form-urlencoded **/
   'application/x-www-form-urlencoded:buffer': async request => {
     return await convertRequestBodyTo(request, 'buffer');

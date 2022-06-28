@@ -8,6 +8,7 @@ import { Readable } from 'stream';
 const CONTENT_TYPES: string[] = [
   'application/json',
   'application/octet-stream',
+  'application/pdf',
   'application/x-www-form-urlencoded',
   'application/xml',
   'image/gif',

@@ -7,6 +7,7 @@ import * as schemaBuffer from '../../src/schema-buffer';
 const CONTENT_TYPES: string[] = [
   'application/json',
   'application/octet-stream',
+  'application/pdf',
   'application/x-www-form-urlencoded',
   'application/xml',
   'image/gif',

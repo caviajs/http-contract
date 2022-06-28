@@ -12,6 +12,7 @@ declare module '@caviajs/http-router' {
   export interface RequestBodySchema {
     'application/json'?: SchemaArray | SchemaBoolean | SchemaBuffer | SchemaNumber | SchemaObject | SchemaStream;
     'application/octet-stream'?: SchemaBuffer | SchemaStream;
+    'application/pdf'?: SchemaBuffer | SchemaStream;
     'application/x-www-form-urlencoded'?: SchemaBuffer | SchemaStream | SchemaObject;
     'application/xml'?: SchemaBuffer | SchemaStream | SchemaString;
     'image/gif'?: SchemaBuffer | SchemaStream;
