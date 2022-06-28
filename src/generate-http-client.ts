@@ -69,7 +69,7 @@ function generateMethod(route: SpecificationRoute): string {
 
     content += 'const response: HttpResponse<Readable> = await HttpClient.request({';
     content += contractRequestBody ? 'body: payload?.body,' : '';
-    content += contractRequestHeaders ? 'headers: payload?.headers,' : '';
+    content += 'headers: payload?.headers,';
     content += `method: '${ route.method }',`;
     content += `responseType: 'stream',`;
     content += `timeout: payload?.timeout,`;
