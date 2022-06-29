@@ -68,6 +68,7 @@ function generateMethod(route: SpecificationRoute): string {
     }
 
     content += 'const response: HttpResponse<Readable> = await HttpClient.request({';
+    content += 'agent: payload?.agent,';
     content += contractRequestBody ? 'body: payload?.body,' : '';
     content += 'headers: payload?.headers,';
     content += `method: '${ route.method }',`;
