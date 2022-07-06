@@ -90,7 +90,9 @@ httpRouter
 ```typescript
 httpRouter
   .route({
-    /* ... */
+    handler: (request, response) => {
+      // request.body ...
+    },
     metadata: {
       contract: {
         request: {
@@ -116,6 +118,7 @@ httpRouter
         },
       },
     },
+    /* ... */
   });
 ```
 
@@ -124,7 +127,9 @@ httpRouter
 ```typescript
 httpRouter
   .route({
-    /* ... */
+    handler: (request, response) => {
+      // request.headers ...
+    },
     metadata: {
       contract: {
         request: {
@@ -136,6 +141,7 @@ httpRouter
         },
       },
     },
+    /* ... */
   });
 ```
 
@@ -144,7 +150,9 @@ httpRouter
 ```typescript
 httpRouter
   .route({
-    /* ... */
+    handler: (request, response) => {
+      // request.params ...
+    },
     metadata: {
       contract: {
         request: {
@@ -156,6 +164,7 @@ httpRouter
         },
       },
     },
+    /* ... */
   });
 ```
 
@@ -170,7 +179,9 @@ and will be converted to true or false.
 ```typescript
 httpRouter
   .route({
-    /* ... */
+    handler: (request, response) => {
+      // request.query ...
+    },
     metadata: {
       contract: {
         request: {
@@ -182,6 +193,7 @@ httpRouter
         },
       },
     },
+    /* ... */
   });
 ```
 
@@ -190,7 +202,11 @@ httpRouter
 ```typescript
 httpRouter
   .route({
-    /* ... */
+    handler: (request, response) => {
+      response.statusCode = 200;
+
+      // return ...
+    },
     metadata: {
       contract: {
         responses: {
@@ -202,6 +218,7 @@ httpRouter
         },
       },
     },
+    /* ... */
   });
 ```
 
@@ -210,7 +227,12 @@ httpRouter
 ```typescript
 httpRouter
   .route({
-    /* ... */
+    handler: (request, response) => {
+      response.statusCode = 200;
+      response.setHeader('name', 'value');
+
+      // ...
+    },
     metadata: {
       contract: {
         responses: {
@@ -224,6 +246,7 @@ httpRouter
         },
       },
     },
+    /* ... */
   });
 ```
 
