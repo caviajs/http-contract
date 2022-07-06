@@ -110,6 +110,14 @@ const CONTENT_PARSERS: { [mime: string]: (request: http.IncomingMessage) => Prom
     return await convertRequestBodyTo(request, 'stream');
   },
 
+  /** multipart/form-data **/
+  'multipart/form-data:buffer': async request => {
+    return await convertRequestBodyTo(request, 'buffer');
+  },
+  'multipart/form-data:stream': async request => {
+    return await convertRequestBodyTo(request, 'stream');
+  },
+
   /** text/css **/
   'text/css:buffer': async request => {
     return await convertRequestBodyTo(request, 'buffer');

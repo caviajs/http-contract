@@ -19,6 +19,7 @@ declare module '@caviajs/http-router' {
     'image/jpeg'?: SchemaBuffer | SchemaStream;
     'image/png'?: SchemaBuffer | SchemaStream;
     'image/tiff'?: SchemaBuffer | SchemaStream;
+    'multipart/form-data'?: SchemaBuffer | SchemaStream;
     'text/css'?: SchemaBuffer | SchemaStream | SchemaString;
     'text/csv'?: SchemaBuffer | SchemaStream | SchemaString;
     'text/html'?: SchemaBuffer | SchemaStream | SchemaString;

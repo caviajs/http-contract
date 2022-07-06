@@ -15,6 +15,7 @@ const CONTENT_TYPES: string[] = [
   'image/jpeg',
   'image/png',
   'image/tiff',
+  'multipart/form-data',
   'text/css',
   'text/csv',
   'text/html',
