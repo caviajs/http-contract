@@ -89,6 +89,41 @@ describe('SchemaNumber', () => {
     expect(queryExists).toBeFalsy();
   });
 
+  it('query declared in the schema but passed by the client as empty string should return 400', async () => {
+    const errors: ValidationError[] = [{ message: 'The value should be number', path: PATH.join('.') }];
+
+    const httpRouter: HttpRouter = new HttpRouter();
+
+    httpRouter
+      .intercept(HttpContract.setup())
+      .route({
+        handler: () => undefined,
+        metadata: {
+          contract: {
+            request: {
+              query: {
+                // declared in schema
+                [QUERY_NAME]: QUERY_SCHEMA,
+              },
+            },
+          },
+        },
+        method: 'POST',
+        path: '/',
+      });
+
+    const httpServer: http.Server = http.createServer((request, response) => {
+      httpRouter.handle(request, response);
+    });
+
+    const response = await supertest(httpServer)
+      .post(`/`)
+      .query({ [QUERY_NAME]: '' }); // but passed by the client as empty string: ?id=
+
+    expect(response.body).toEqual(errors);
+    expect(response.statusCode).toEqual(400);
+  });
+
   it('should return 400 if validateSchemaNumber return an array with errors', async () => {
     const errors: ValidationError[] = [{ message: 'Lorem ipsum', path: PATH.join('.') }];
 
