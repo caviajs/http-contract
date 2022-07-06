@@ -170,12 +170,6 @@ export class HttpContract {
 
       /** request.body **/
       if (request.metadata?.contract?.request?.body) {
-        // The Content-Length header is mandatory for messages with entity bodies,
-        // unless the message is transported using chunked encoding (transfer-encoding).
-        if (request.headers['transfer-encoding'] === undefined && request.headers['content-length'] === undefined) {
-          throw new HttpException(411, 'Length Required');
-        }
-
         const contentTypeMime: string | undefined = getContentTypeMime(request.headers['content-type']);
 
         const contentSchema = request.metadata.contract.request.body[contentTypeMime?.toLowerCase()];
