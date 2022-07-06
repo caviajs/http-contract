@@ -5,6 +5,7 @@ it('should return a number for a numeric string', () => {
 });
 
 it('should return the same data for an invalid numeric string', () => {
+  expect(convertToNumber('')).toBe('');
   expect(convertToNumber('foo')).toBe('foo');
   expect(convertToNumber('foo1')).toBe('foo1');
 });
