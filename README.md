@@ -3,18 +3,19 @@
 <p>ecosystem for your guinea pig</p>
 </div>
 
-<div align="center">
-<h4>Installation</h4>
-</div>
+## Introduction
+
+...
+
+## Usage
+
+### Installation
 
 ```shell
 npm install @caviajs/http-contract @caviajs/http-client @caviajs/http-exception @caviajs/http-router --save
 ```
 
-<div align="center">
-<h4>Setup contract interceptor</h4>
-<div><span>The contract is responsible for parsing, convert and validation the payload of the request.</span></div>
-</div>
+### Configure the interceptor
 
 ```typescript
 import { HttpContract } from '@caviajs/http-contract';
@@ -23,17 +24,16 @@ import { Interceptor } from '@caviajs/http-router';
 export const HttpContractInterceptor: Interceptor = HttpContract.setup();
 ```
 
+### Bind the interceptor
+
 ```typescript
-// ...
 httpRouter
   .intercept(HttpContractInterceptor);
-// ...
 ```
 
-<div align="center">
-<h4>Setup contract route</h4>
-<span>The contract route is needed to provide the specification on the basis of which the contract will be generated.</span>
-</div>
+### Setup contract route
+
+The contract route is needed to provide the specification on the basis of which the contract will be generated.
 
 ```typescript
 // ...
@@ -46,12 +46,9 @@ httpRouter
 // ...
 ```
 
-<div align="center">
-<h4>Setup contract metadata in routes</h4>
-</div>
+### Setup contract metadata in routes
 
 ```typescript
-// ...
 httpRouter
   .route({
     handler: (request, response) => {
@@ -70,10 +67,9 @@ httpRouter
     method: 'POST',
     path: '/guinea-pigs',
   });
-// ...
 ```
 
-#### metadata.contract.name
+##### metadata.contract.name
 
 Name is the **unique** name of the router from which the CLI generates the HTTP client.
 
@@ -89,11 +85,11 @@ httpRouter
   });
 ```
 
-#### metadata.contract.request.body
+##### metadata.contract.request.body
 
 ...
 
-#### metadata.contract.request.headers
+##### metadata.contract.request.headers
 
 Type: `{ [name: string]: SchemaEnum | SchemaString }`
 
@@ -115,7 +111,7 @@ httpRouter
   });
 ```
 
-#### metadata.contract.request.params
+##### metadata.contract.request.params
 
 Type: `{ [name: string]: SchemaBoolean | SchemaEnum | SchemaNumber | SchemaString }`
 
@@ -153,19 +149,17 @@ and will be converted to true or false.
 * 'true' converts to Boolean(true)
 * 'false' converts to Boolean(false)
 
-#### metadata.contract.request.query
+##### metadata.contract.request.query
 
 Type: `{ [name: string]: SchemaBoolean | SchemaEnum | SchemaNumber | SchemaString }`
 
 ...
 
-#### metadata.contract.responses[status].body
+##### metadata.contract.responses[status].body
 
-#### metadata.contract.responses[status].headers
+##### metadata.contract.responses[status].headers
 
-<div align="center">
-<h4>Generate a contract based on specification</h4>
-</div>
+### Generate a contract based on specification
 
 ```shell
 generate-contract --url http://localhost:3000/meta/contract --output src/contracts/foo
