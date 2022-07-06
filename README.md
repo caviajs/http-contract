@@ -87,6 +87,8 @@ httpRouter
 
 ##### metadata.contract.request.body
 
+Using this schema you can try to convert and validate the request body for specific mime-types.
+
 ```typescript
 httpRouter
   .route({
@@ -124,6 +126,8 @@ httpRouter
 
 ##### metadata.contract.request.headers
 
+Using this schema you can validate the request headers.
+
 ```typescript
 httpRouter
   .route({
@@ -147,6 +151,8 @@ httpRouter
 
 ##### metadata.contract.request.params
 
+Using this schema you can try to convert and validate the request params.
+
 ```typescript
 httpRouter
   .route({
@@ -168,13 +174,9 @@ httpRouter
   });
 ```
 
-Enforces the value to be a valid string representation of a boolean. Following values are considered as valid booleans
-and will be converted to true or false.
-
-* 'true' converts to Boolean(true)
-* 'false' converts to Boolean(false)
-
 ##### metadata.contract.request.query
+
+Using this schema you can try to convert and validate the request query.
 
 ```typescript
 httpRouter
