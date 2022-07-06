@@ -12,7 +12,7 @@
 ### Installation
 
 ```shell
-npm install @caviajs/http-contract @caviajs/http-client @caviajs/http-exception @caviajs/http-router --save
+npm install @caviajs/http-contract --save
 ```
 
 ### Configure the interceptor
@@ -36,14 +36,12 @@ httpRouter
 The contract route is needed to provide the specification on the basis of which the contract will be generated.
 
 ```typescript
-// ...
 httpRouter
   .route({
     handler: () => httpRouter.specification,
     method: 'GET',
     path: '/meta/contract',
   });
-// ...
 ```
 
 ### Setup contract metadata in routes
@@ -71,7 +69,7 @@ httpRouter
 
 ##### metadata.contract.name
 
-Name is the **unique** name of the router from which the CLI generates the HTTP client.
+The name is the **unique** name of the router from which the CLI generates the HTTP client.
 
 ```typescript
 httpRouter
@@ -79,7 +77,9 @@ httpRouter
     // ...
     metadata: {
       contract: {
-        name: 'createGuineaPig',
+        /* 
+          name: string;
+        */
       },
     },
   });
@@ -87,24 +87,52 @@ httpRouter
 
 ##### metadata.contract.request.body
 
-...
+```typescript
+httpRouter
+  .route({
+    /* ... */
+    metadata: {
+      contract: {
+        request: {
+          /*
+            body: {
+              'application/json'?: SchemaArray | SchemaBoolean | SchemaBuffer | SchemaNumber | SchemaObject | SchemaStream;
+              'application/octet-stream'?: SchemaBuffer | SchemaStream;
+              'application/pdf'?: SchemaBuffer | SchemaStream;
+              'application/x-www-form-urlencoded'?: SchemaBuffer | SchemaStream | SchemaObject;
+              'application/xml'?: SchemaBuffer | SchemaStream | SchemaString;
+              'image/gif'?: SchemaBuffer | SchemaStream;
+              'image/jpeg'?: SchemaBuffer | SchemaStream;
+              'image/png'?: SchemaBuffer | SchemaStream;
+              'image/tiff'?: SchemaBuffer | SchemaStream;
+              'multipart/form-data'?: SchemaBuffer | SchemaStream;
+              'text/css'?: SchemaBuffer | SchemaStream | SchemaString;
+              'text/csv'?: SchemaBuffer | SchemaStream | SchemaString;
+              'text/html'?: SchemaBuffer | SchemaStream | SchemaString;
+              'text/plain'?: SchemaBuffer | SchemaStream | SchemaString;
+              'video/mp4'?: SchemaBuffer | SchemaStream;
+            }
+          */
+        },
+      },
+    },
+  });
+```
 
 ##### metadata.contract.request.headers
-
-Type: `{ [name: string]: SchemaEnum | SchemaString }`
 
 ```typescript
 httpRouter
   .route({
-    // ...
+    /* ... */
     metadata: {
       contract: {
         request: {
-          headers: {
-            'x-example': {
-              type: 'string'
-            },
-          }
+          /* 
+            headers: {
+              [name: string]: SchemaEnum | SchemaString;
+            }
+          */
         },
       },
     },
@@ -113,30 +141,18 @@ httpRouter
 
 ##### metadata.contract.request.params
 
-Type: `{ [name: string]: SchemaBoolean | SchemaEnum | SchemaNumber | SchemaString }`
-
 ```typescript
 httpRouter
   .route({
-    // ...
+    /* ... */
     metadata: {
       contract: {
         request: {
-          params: {
-            example1: {
-              type: 'boolean'
-            },
-            example2: {
-              enum: ['foo', 'bar'],
-              type: 'enum'
-            },
-            example3: {
-              type: 'number'
-            },
-            example4: {
-              type: 'string'
-            },
-          }
+          /* 
+            params: {
+              [name: string]: SchemaBoolean | SchemaEnum | SchemaNumber | SchemaString;
+            }  
+          */
         },
       },
     },
@@ -151,13 +167,65 @@ and will be converted to true or false.
 
 ##### metadata.contract.request.query
 
-Type: `{ [name: string]: SchemaBoolean | SchemaEnum | SchemaNumber | SchemaString }`
-
-...
+```typescript
+httpRouter
+  .route({
+    /* ... */
+    metadata: {
+      contract: {
+        request: {
+          /* 
+            query: {
+              [name: string]: SchemaBoolean | SchemaEnum | SchemaNumber | SchemaString;
+            }
+          */
+        },
+      },
+    },
+  });
+```
 
 ##### metadata.contract.responses[status].body
 
+```typescript
+httpRouter
+  .route({
+    /* ... */
+    metadata: {
+      contract: {
+        responses: {
+          200: {
+            /* 
+              body: SchemaArray | SchemaBoolean | SchemaBuffer | SchemaEnum | SchemaNumber | SchemaObject | SchemaStream | SchemaString; 
+            */
+          },
+        },
+      },
+    },
+  });
+```
+
 ##### metadata.contract.responses[status].headers
+
+```typescript
+httpRouter
+  .route({
+    /* ... */
+    metadata: {
+      contract: {
+        responses: {
+          200: {
+            /*
+              headers: {
+                [name: string]: SchemaEnum | SchemaString;
+              }
+            */
+          },
+        },
+      },
+    },
+  });
+```
 
 ### Generate a contract based on specification
 
