@@ -56,6 +56,7 @@ export function validateSchemaObject(schema: SchemaObject, data: any, path: stri
 }
 
 export type SchemaObject = {
+  description?: string;
   nullable?: boolean;
   properties?: {
     [name: string]:

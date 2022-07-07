@@ -25,6 +25,7 @@ export function validateSchemaBoolean(schema: SchemaBoolean, data: any, path: st
 }
 
 export type SchemaBoolean = {
+  description?: string;
   nullable?: boolean;
   required?: boolean;
   type: 'boolean';

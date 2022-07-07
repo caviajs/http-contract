@@ -26,6 +26,7 @@ export function validateSchemaStream(schema: SchemaStream, data: any, path: stri
 }
 
 export type SchemaStream = {
+  description?: string;
   nullable?: boolean;
   required?: boolean;
   type: 'stream';

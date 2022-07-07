@@ -66,6 +66,7 @@ export function validateSchemaArray(schema: SchemaArray, data: any, path: string
 }
 
 export type SchemaArray = {
+  description?: string;
   items?:
     | SchemaArray
     | SchemaBoolean

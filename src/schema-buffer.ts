@@ -33,6 +33,7 @@ export function validateSchemaBuffer(schema: SchemaBuffer, data: any, path: stri
 }
 
 export type SchemaBuffer = {
+  description?: string;
   maxLength?: number;
   minLength?: number;
   nullable?: boolean;

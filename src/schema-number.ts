@@ -33,6 +33,7 @@ export function validateSchemaNumber(schema: SchemaNumber, data: any, path: stri
 }
 
 export type SchemaNumber = {
+  description?: string;
   max?: number;
   min?: number;
   nullable?: boolean;

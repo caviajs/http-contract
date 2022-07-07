@@ -41,6 +41,7 @@ export function validateSchemaString(schema: SchemaString, data: any, path: stri
 }
 
 export type SchemaString = {
+  description?: string;
   expressions?: RegExp[];
   maxLength?: number;
   minLength?: number;
