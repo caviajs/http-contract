@@ -5,7 +5,8 @@
 
 ## Introduction
 
-...
+Contract, based on the scheme, converts and validates the request and response payload. 
+It also has the ability to generate an HTTP client.
 
 ## Usage
 
