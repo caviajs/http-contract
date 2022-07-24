@@ -221,6 +221,8 @@ export class HttpContract {
             errors.push(...validateSchemaEnum(schema, request.headers[name], path));
           } else if (isSchemaString(schema)) {
             errors.push(...validateSchemaString(schema, request.headers[name], path));
+          } else {
+            throw new HttpException(500);
           }
         }
       }
@@ -246,6 +248,8 @@ export class HttpContract {
             errors.push(...validateSchemaNumber(schema, request.params[name], path));
           } else if (isSchemaString(schema)) {
             errors.push(...validateSchemaString(schema, request.params[name], path));
+          } else {
+            throw new HttpException(500);
           }
         }
       }
@@ -273,6 +277,8 @@ export class HttpContract {
             errors.push(...validateSchemaNumber(schema, request.query[name], path));
           } else if (isSchemaString(schema)) {
             errors.push(...validateSchemaString(schema, request.query[name], path));
+          } else {
+            throw new HttpException(500);
           }
         }
       }
